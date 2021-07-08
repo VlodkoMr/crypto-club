@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Seaweed+Script&display=swap');
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("../fonts/Proxima_Nova/proximanova-bold-webfont.woff2") format("woff2"),
+  url("../fonts/Proxima_Nova/proximanova-bold-webfont.woff") format("woff"),
+  url("../fonts/Proxima_Nova/proximanova-bold-webfont.ttf") format("truetype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("../fonts/Proxima_Nova/proximanova-semibold-webfont.woff2") format("woff2"),
+  url("../fonts/Proxima_Nova/proximanova-semibold-webfont.woff") format("woff"),
+  url("../fonts/Proxima_Nova/proximanova-semibold-webfont.ttf") format("truetype");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("../fonts/Proxima_Nova/proximanova-regular-webfont.woff2") format("woff2"),
+  url("../fonts/Proxima_Nova/proximanova-regular-webfont.woff") format("woff"),
+  url("../fonts/Proxima_Nova/proximanova-regular-webfont.ttf") format("truetype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url("../fonts/Proxima_Nova/proximanova-light-webfont.woff2") format("woff2"),
+  url("../fonts/Proxima_Nova/proximanova-light-webfont.woff") format("woff"),
+  url("../fonts/Proxima_Nova/proximanova-light-webfont.ttf") format("truetype");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bai_Jamjuree';
+  src: url("../fonts/Bai_Jamjuree/baijamjuree-medium-webfont.ttf") format("woff2"),
+  url("../fonts/Bai_Jamjuree/baijamjuree-medium-webfont.woff") format("woff"),
+  url("../fonts/Bai_Jamjuree/baijamjuree-medium-webfont.ttf") format("truetype");
+  font-display: swap;
+}

@@ -1,0 +1,13 @@
+{
+  "meta": {
+    "site_name": "CryptoClub",
+    "home": {
+      "title": "CryptoClub",
+      "description": "CryptoClub: Description"
+    },
+    "not-found": {
+      "title": "Not found - CryptoClub",
+      "description": "Not found"
+    }
+  }
+}
