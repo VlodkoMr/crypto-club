@@ -30,7 +30,7 @@
       </div>
     </header>
 
-    <div class="container">
+    <div class="container" v-if="$store.state.isReady">
       <router-view/>
     </div>
 
@@ -62,7 +62,7 @@
 <script>
 import UserAccount from '@/components/UserAccount.vue'
 import WalletConnectPopup from '@/components/WalletConnectPopup.vue'
-import {isMetamaskInstalled, loadUserAccount} from './blockchain/metamask'
+import {isMetamaskInstalled, getUserAddress} from './blockchain/metamask'
 
 
 export default {
@@ -70,14 +70,19 @@ export default {
     return {}
   },
   async created() {
-    // this.$socket.$subscribe('hello', payload => {
+    // this.$socket.$subscribe('ETHUSDT@miniTicker', payload => {
     //   console.log('payload', payload);
     // });
 
     // Connect metamask on init
     await this.connectMetamask();
     await this.$store.dispatch('loadRound');
-    this.$store.commit('isReady', true);
+    await this.$store.dispatch('getPriceStreams');
+
+    setTimeout(() => {
+      this.$store.commit('isReady', true);
+    }, 100);
+
   },
   computed: {
     isHomepage() {
@@ -95,8 +100,9 @@ export default {
     async connectMetamask() {
       this.$store.commit('isMetamaskInstalled', await isMetamaskInstalled());
       if (this.$store.state.isMetamaskInstalled) {
-        this.$store.commit('account', await loadUserAccount());
+        this.$store.commit('address', await getUserAddress());
         this.$bvModal.hide('modal-connect-wallet');
+        // await this.$store.dispatch('loadUser');
       }
     }
   },

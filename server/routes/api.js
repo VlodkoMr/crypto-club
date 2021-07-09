@@ -8,10 +8,9 @@ router.get('/', (req, res) => {
     res.send('Hello API');
 });
 
-router.get('/current-round', async (req, res) => {
+router.get('/round', async (req, res) => {
     const round = await prisma.rounds.findFirst({orderBy: {id: 'desc'}});
     const secondsToEnd = parseInt((round.end_time - new Date()) / 1000);
-
     const result = {
         id: round,
         endTime: round.end_time.toISOString().slice(11, 16),
@@ -19,16 +18,26 @@ router.get('/current-round', async (req, res) => {
         predictions: [],
         rooms: await prisma.rooms.findMany()
     }
-    console.log(result)
-
     res.send(result);
 });
 
-router.get('/account', (req, res) => {
+router.get('/user', async (req, res) => {
+    let user = await prisma.users.findFirst({
+        where: {
+            address: req.query.acc
+        }
+    });
+
+    if (!user) {
+        user = await prisma.users.create({
+            data: {
+                address: req.query.acc,
+                balance_wei: 0
+            }
+        });
+    }
     res.send({
-        predictions: [
-            // roomId, price, amount
-        ]
+        address: user.address
     });
 })
 

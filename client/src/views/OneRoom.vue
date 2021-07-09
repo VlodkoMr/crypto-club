@@ -23,9 +23,9 @@
         </div>
 
         <div class="col-lg text-center text-lg-left">
-          <img src="../assets/img/tokens/eth-black.svg" alt="" class="token-img">
+          <img :src="getTokenImg(room.symbol)" alt="" class="token-img">
           <img src="../assets/img/dot.svg" alt="" class="dots-img">
-          <h1 class="pr-5 mr-3 pr-lg-0">Bitcoin</h1>
+          <h1 class="pr-5 mr-3 pr-lg-0">{{ room.title }}</h1>
         </div>
 
         <div class="col-lg-3 pr-lg-0 font-weight-bold members-block d-none d-lg-block">
@@ -53,7 +53,7 @@
             </div>
             <div class="col-7 mt-2 pt-1 position-relative">
               <span class="change-pct">-1.1%</span>
-              <b class="fz-36 text-nowrap price">$ 27,809.85</b>
+              <b class="fz-36 text-nowrap price">{{ room.price_usd }}</b>
             </div>
           </div>
 
@@ -92,6 +92,18 @@ import RoundTimer from '@/components/RoundTimer';
 
 export default {
   name: 'OneRoom',
+  data() {
+    return {
+      room: null
+    }
+  },
+  created() {
+    this.$store.state.round.rooms.forEach(room => {
+      if (room.symbol === this.$route.params.id) {
+        this.room = room;
+      }
+    })
+  },
   metaInfo() {
     const meta = this.$t('meta.home');
 
@@ -104,6 +116,12 @@ export default {
         {property: 'og:type', content: 'website'},
         {name: 'robots', content: 'index, follow'}
       ]
+    }
+  },
+  methods: {
+    getTokenImg(symbol) {
+      const images = require.context('../assets/img/tokens/', false, /\-black.svg$/);
+      return images('./' + symbol + "-black.svg");
     }
   },
   components: {

@@ -1,7 +1,7 @@
 <template>
   <div>
-    <HomepageNoUser v-if="!$store.state.user.account"></HomepageNoUser>
-    <HomepageUser v-if="$store.state.user.account"></HomepageUser>
+    <HomepageNoUser v-if="!$store.state.user.address"></HomepageNoUser>
+    <HomepageUser v-if="$store.state.user.address"></HomepageUser>
   </div>
 </template>
 

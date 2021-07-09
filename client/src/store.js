@@ -9,11 +9,9 @@ export default new Vuex.Store({
         isReady: false,
         isMetamaskInstalled: false,
         user: {
-            account: null,
+            address: null,
             balanceETH: '',
-            balanceUSDT: '',
             pendingBalanceETH: '',
-            pendingBalanceUSDT: '',
         },
         round: {
             id: null,
@@ -27,25 +25,43 @@ export default new Vuex.Store({
         isMetamaskInstalled(state, value) {
             state.isMetamaskInstalled = value;
         },
-        account(state, value) {
-            state.user.account = value
+        address(state, value) {
+            state.user.address = value
         },
         isReady(state, value) {
-            state.user.isReady = value
+            state.isReady = value
         },
         round(state, value) {
             this.state.round = value;
         },
+        updateTokenPrice(state, value) {
+            let minimumFractionDigits = 2;
+            if (value.price < 1) {
+                minimumFractionDigits = 6;
+            } else if (value.price < 10) {
+                minimumFractionDigits = 5;
+            } else if (value.price < 100) {
+                minimumFractionDigits = 4;
+            } else if (value.price < 1000) {
+                minimumFractionDigits = 3;
+            }
+
+            this.state.round.rooms[value.index].price_usd = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: minimumFractionDigits
+            }).format(value.price);
+        },
         secondsToEnd(state, value) {
             this.state.round.secondsToEnd = value;
         },
-        SOCKET_CHAT_MESSAGE(state, value) {
-            console.log('SOCKET_CHAT_MESSAGE', value);
-        }
+        // SOCKET_CHAT_MESSAGE(state, value) {
+        //     console.log('SOCKET_CHAT_MESSAGE', value);
+        // }
     },
     actions: {
         loadRound({dispatch, commit, state}) {
-            axios.get('http://localhost:9000/api/current-round')
+            axios.get('http://localhost:9000/api/round')
                 .then(response => {
                     if (response.data) {
                         commit('round', response.data);
@@ -61,6 +77,34 @@ export default new Vuex.Store({
                     dispatch('loadRound');
                 }
             }, 1000);
+        },
+        getPriceStreams({dispatch, commit, state}) {
+            setTimeout(() => {
+                state.round.rooms.forEach((room, roomIndex) => {
+                    const ticker = room.symbol + 'usdt';
+                    const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1m`);
+                    socket.onmessage = function (event) {
+                        const data = JSON.parse(event.data);
+                        commit('updateTokenPrice', {index: roomIndex, price: data.k.c})
+                        // console.log(data.s, data.k.c);
+                    };
+                    socket.onclose = function (event) {
+                        alert('[close] Соединение прервано');
+                        document.location.reload();
+                    };
+                });
+            }, 100);
         }
+        // loadUser({dispatch, commit, state}) {
+        //     if (state.user.address) {
+        //         axios.get(`http://localhost:9000/api/user?acc=${state.user.address}`)
+        //             .then(response => {
+        //                 if (response.data) {
+        //                     commit('user', response.data);
+        //                 }
+        //             });
+        //     }
+        //
+        // }
     }
 })

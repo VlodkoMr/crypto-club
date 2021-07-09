@@ -4,12 +4,14 @@ const http = require('http');
 const {Server} = require('socket.io');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
+const Binance = require('node-binance-api');
 
 require('dotenv').config();
 
 // Configuring port
 const port = process.env.PORT || 9000;
 const app = express();
+const binance = new Binance();
 
 app.use(cors());
 app.use(express.json());

@@ -27,7 +27,7 @@ const isMetamaskInstalled = async () => {
     }
 }
 
-const loadUserAccount = async () => {
+const getUserAddress = async () => {
     return ethereum
         .request({method: 'eth_requestAccounts'})
         .then((accounts) => {
@@ -60,7 +60,7 @@ const loadContract = async (token) => {
 
 export {
     isMetamaskInstalled,
-    loadUserAccount,
+    getUserAddress,
     loadUserNetworkId,
     loadContract,
 }

@@ -1,16 +1,16 @@
 <template>
   <div class="d-inline-block">
     <b-button pill
-              v-if="!$store.state.user.account"
+              v-if="!$store.state.user.address"
               class="d-none d-lg-inline ml-2 btn-secondary-fill"
               v-b-modal.modal-connect-wallet>Connect Wallet
     </b-button>
 
-    <div class="mobile-menu-button" v-if="$store.state.user.account">
+    <div class="mobile-menu-button" v-if="$store.state.user.address">
       <b-button pill class="btn-secondary-fill" @click="isWalletPopupVisible = !isWalletPopupVisible">
         <img src="../assets/img/user.svg" alt="">
         <span class="ml-3 mr-3 d-none d-lg-inline align-middle">
-          {{ account }}
+          {{ address }}
         </span>
         <img src="../assets/img/icon-menu.svg" alt="" class="ml-3 mr-2 d-lg-none d-inline">
         <img src="../assets/img/white-arrow-down.svg" alt="" class="d-none d-lg-inline arrow-down">
@@ -78,9 +78,9 @@ export default {
     }
   },
   computed: {
-    account() {
-      const begin = this.$store.state.user.account.slice(0, 6);
-      const end = this.$store.state.user.account.slice(-4);
+    address() {
+      const begin = this.$store.state.user.address.slice(0, 6);
+      const end = this.$store.state.user.address.slice(-4);
       return `${begin}... ${end}`;
     }
   },
