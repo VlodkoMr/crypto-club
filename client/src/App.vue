@@ -70,13 +70,12 @@ export default {
     return {}
   },
   async created() {
-    this.$socket.$subscribe('hello', payload => {
-      console.log('payload', payload);
-    });
+    // this.$socket.$subscribe('hello', payload => {
+    //   console.log('payload', payload);
+    // });
 
     // Connect metamask on init
     await this.connectMetamask();
-    await this.$store.dispatch('loadRooms');
     await this.$store.dispatch('loadRound');
     this.$store.commit('isReady', true);
   },

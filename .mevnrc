@@ -1,8 +1,0 @@
-{
-  "name": "crypto-club",
-  "template": "Default",
-  "isConfigured": {
-    "client": true,
-    "server": true
-  }
-}

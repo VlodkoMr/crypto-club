@@ -15,13 +15,12 @@ export default new Vuex.Store({
             pendingBalanceETH: '',
             pendingBalanceUSDT: '',
         },
-        rooms: [],
         round: {
             id: null,
-            secondsToEnd: 135,
             endTime: '',
-            isLocked: false,
+            secondsToEnd: 0,
             predictions: [],
+            rooms: [],
         }
     },
     mutations: {
@@ -34,8 +33,8 @@ export default new Vuex.Store({
         isReady(state, value) {
             state.user.isReady = value
         },
-        rooms(state, value) {
-            state.rooms = value;
+        round(state, value) {
+            this.state.round = value;
         },
         secondsToEnd(state, value) {
             this.state.round.secondsToEnd = value;
@@ -45,19 +44,21 @@ export default new Vuex.Store({
         }
     },
     actions: {
-        loadRooms(context) {
-            return axios.get('http://localhost:9000/api/rooms')
+        loadRound({dispatch, commit, state}) {
+            axios.get('http://localhost:9000/api/current-round')
                 .then(response => {
                     if (response.data) {
-                        context.commit('rooms', response.data);
+                        commit('round', response.data);
                     }
                 });
-        },
-        loadRound(context) {
-            setInterval(() => {
-                const seconds = context.state.round.secondsToEnd;
+
+            const timerInterval = setInterval(() => {
+                const seconds = state.round.secondsToEnd;
                 if (seconds - 1 >= 0) {
-                    context.commit('secondsToEnd', seconds - 1);
+                    commit('secondsToEnd', seconds - 1);
+                } else {
+                    clearInterval(timerInterval);
+                    dispatch('loadRound');
                 }
             }, 1000);
         }

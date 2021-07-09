@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  server:
+    build: ./server
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true
+    ports:
+      - 9000:9000
+    volumes:
+      - ./server/:/var/www/server/
+      - ./server/node_modules/:/var/www/server/node_modules/
+    restart: 'always'
+    networks:
+      - main
+
+  client:
+    build: ./client
+    depends_on:
+      - server
+    stdin_open: true
+    tty: true
+    ports:
+      - 8080:8080
+    volumes:
+      - ./client/:/var/www/client/
+      - ./client/node_modules/:/var/www/client/node_modules/
+    restart: 'always'
+    networks:
+      - main
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: crypto_db
+      MYSQL_ROOT_PASSWORD: secret
+    networks:
+      - main
+    volumes:
+      - ./.data/database:/var/lib/mysql
+      - ./.data/log/database:/var/log/mysql
+    ports:
+      - "3306:3306"
+    command: [ 'mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci' ]
+
+networks:
+  main:

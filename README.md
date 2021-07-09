@@ -2,16 +2,31 @@
 
 ### Requirements
 
-NodeJS
-mevn-cli
+- NodeJS
+- Docker
 
 ### Install
 
 ```
-npm install -g mevn-cli
 cd ./client/ && npm i && cd ../server/ && npm i
-cd ..
+docker-compose build
 ```
 
 ### Run development
-mevn serve
+
+```
+docker-compose up
+```
+
+- Frontend: [http://localhost:8080](http://localhost:8080)
+- Backend: [http://localhost:9000](http://localhost:9000)
+
+#### Migration & Seed
+
+```
+docker-compose exec server npx prisma migrate dev
+docker-compose exec server npx prisma db seed --preview-feature
+```
+
+#### Introspect DB
+docker-compose exec server npx prisma introspect --force

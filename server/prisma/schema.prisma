@@ -1,0 +1,79 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model rooms {
+  id               Int                @id @default(autoincrement())
+  title            String             @db.VarChar(255)
+  symbol           String             @unique @db.VarChar(255)
+  price_usd        Float              @default(0) @db.Float
+  price_pct        Float              @default(0) @db.Float
+  round_results    round_results[]
+  user_predictions user_predictions[]
+}
+
+model round_results {
+  id        Int    @id @default(autoincrement())
+  round_id  Int
+  room_id   Int
+  price_usd Float  @db.Float
+  rooms     rooms  @relation(fields: [room_id], references: [id])
+  rounds    rounds @relation(fields: [round_id], references: [id])
+
+  @@index([room_id], name: "room_id")
+  @@index([round_id], name: "round_id")
+}
+
+model rounds {
+  id               Int                @id @default(autoincrement())
+  start_time       DateTime           @default(now()) @db.Timestamp(0)
+  end_time         DateTime           @default(now()) @db.Timestamp(0)
+  is_active        Boolean            @default(true)
+  round_results    round_results[]
+  user_predictions user_predictions[]
+}
+
+model user_payments {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  type       String   @db.VarChar(255)
+  amount_wei BigInt
+  status     Boolean
+  hash       String?  @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+  users      users    @relation(fields: [user_id], references: [id])
+
+  @@index([user_id], name: "user_id")
+}
+
+model user_predictions {
+  id             Int      @id @default(autoincrement())
+  user_id        Int
+  room_id        Int
+  round_id       Int
+  is_winner      Boolean?
+  prediction_usd Float    @db.Float
+  entry_wei      BigInt
+  rooms          rooms    @relation(fields: [room_id], references: [id])
+  rounds         rounds   @relation(fields: [round_id], references: [id])
+  users          users    @relation(fields: [user_id], references: [id])
+
+  @@index([room_id], name: "room_id")
+  @@index([round_id], name: "round_id")
+  @@index([user_id], name: "user_id")
+}
+
+model users {
+  id               Int                @id @default(autoincrement())
+  address          String             @unique @db.VarChar(255)
+  balance_wei      BigInt             @default(0)
+  created_at       DateTime           @default(now())
+  user_payments    user_payments[]
+  user_predictions user_predictions[]
+}

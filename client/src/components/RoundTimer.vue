@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="$store.state.round.id">
 
     <div v-if="!isClosed">
       <div class="make-prediction mb-1">Make your prediction</div>
