@@ -1,19 +1,19 @@
 <template>
   <div class="ml-3">
-    <h3>{{ title }}</h3>
+    <h3>{{ room.title }}</h3>
     <div class="row">
       <img src="../assets/img/tokens/eth-black.svg" alt="" class="token-img">
       <img src="../assets/img/dot.svg" alt="" class="dots-img">
 
       <div class="col-5 pt-2 mt-1 text-grey font-weight-bold fz-14 pr-0">TOTAL STAKE</div>
-      <div class="col-7 pt-1 text-right font-weight-bold fz-24 pr-4 pl-0">0.56 ETH</div>
+      <div class="col-7 pt-1 text-right font-weight-bold fz-24 pr-4 pl-0">{{ room.entry }} ETH</div>
     </div>
     <div class="row">
       <div class="col-6 pt-2 mt-2 text-grey font-weight-bold fz-14">MEMBERS</div>
-      <div class="col-6 pt-1 text-right font-weight-bold fz-24 pr-4 pl-0">10</div>
+      <div class="col-6 pt-1 text-right font-weight-bold fz-24 pr-4 pl-0">{{ room.members }}</div>
     </div>
     <div class="text-center">
-      <b-button class="btn-pad mt-5" pill :to="{name:'OneRoom', 'params':{'id': id}}">Join</b-button>
+      <b-button class="btn-pad mt-5" pill :to="{name:'OneRoom', 'params':{'id': room.symbol}}">Join</b-button>
     </div>
   </div>
 </template>
@@ -21,10 +21,7 @@
 <script>
 export default {
   name: 'RoomPreview',
-  props: {
-    title: String,
-    id: String,
-  }
+  props: ['room'],
 }
 </script>
 

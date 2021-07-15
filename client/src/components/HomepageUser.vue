@@ -10,32 +10,14 @@
     </div>
     <div class="d-lg-none d-block splide-block">
       <splide :options="options">
-        <splide-slide>
-          <RoomPreview title="Ripple" id="xrp"/>
-        </splide-slide>
-        <splide-slide>
-          <RoomPreview title="Bitcoin" id="btc"/>
-        </splide-slide>
-        <splide-slide>
-          <RoomPreview title="Ethereum" id="eth"/>
-        </splide-slide>
-        <splide-slide>
-          <RoomPreview title="Dogecoin" id="doge"/>
+        <splide-slide v-for="room in $store.state.round.rooms" :key="room.id">
+          <RoomPreview :room="room"/>
         </splide-slide>
       </splide>
     </div>
     <div class="row d-none d-lg-flex">
-      <div class="col-lg-3 room-block">
-        <RoomPreview title="Ripple" id="xrp"/>
-      </div>
-      <div class="col-lg-3 room-block">
-        <RoomPreview title="Bitcoin" id="btc"/>
-      </div>
-      <div class="col-lg-3 room-block">
-        <RoomPreview title="Ethereum" id="eth"/>
-      </div>
-      <div class="col-lg-3 room-block">
-        <RoomPreview title="Dogecoin" id="doge"/>
+      <div class="col-lg-3 room-block" v-for="room in $store.state.round.rooms" :key="room.id">
+        <RoomPreview :room="room"/>
       </div>
     </div>
 

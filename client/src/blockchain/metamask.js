@@ -2,10 +2,12 @@ import detectEthereumProvider from '@metamask/detect-provider';
 
 
 function handleAccountChanged(accounts) {
+    console.log('handleAccountChanged');
     window.location.reload();
 }
 
 function handleChainChanged(chainId) {
+    console.log('handleChainChanged');
     window.location.reload();
 }
 
@@ -58,9 +60,25 @@ const loadContract = async (token) => {
     }
 }
 
+const maxDigits = (price) => {
+    let digits = 2;
+    if (price < 1) {
+        digits = 6;
+    } else if (price < 10) {
+        digits = 5;
+    } else if (price < 100) {
+        digits = 4;
+    } else if (price < 1000) {
+        digits = 3;
+    }
+
+    return digits;
+}
+
 export {
     isMetamaskInstalled,
     getUserAddress,
     loadUserNetworkId,
     loadContract,
+    maxDigits
 }

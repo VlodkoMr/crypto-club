@@ -12,18 +12,24 @@
 
           <div class="col-lg">
             <div class="row">
-              <div class="col-lg-2 text-left pt-2 mt-1 font-weight-bold pr-0 pl-1" v-if="$store.state.round.predictions.length">
+              <b-link to="/my-predictions"
+                      class="col-lg-2 text-left pt-2 mt-1 font-weight-bold pr-0 pl-1 no-decoration"
+                      v-if="$store.state.user.predictions.length">
                 <span class="mr-3 fz-14 text-grey">YOUR PREDICTION</span>
-                <b class="fz-18">{{ $store.state.round.predictions.length }}</b>
-              </div>
-              <div class="col-lg-3 text-left pt-2 mt-1 font-weight-bold pl-4 pr-0" v-if="$store.state.round.predictions.length">
+                <b class="fz-18 text-black">{{ $store.state.user.predictions.length }}</b>
+              </b-link>
+              <b-link to="/my-predictions"
+                      class="col-lg-3 text-left pt-2 mt-1 font-weight-bold pl-4 pr-0 no-decoration"
+                      v-if="$store.state.user.predictions.length">
                 <span class="mr-3 ml-2 fz-14 text-grey">YOUR ENTRY</span>
-                <b class="fz-18">{{ predictionsEntry }} ETH</b>
-              </div>
+                <b class="fz-18 text-black">{{ predictionsEntry }} ETH</b>
+              </b-link>
+
               <div class="col text-right">
                 <!--<LanguageDropdown/>-->
                 <UserAccount/>
               </div>
+
             </div>
           </div>
         </div>
@@ -63,26 +69,18 @@
 import UserAccount from '@/components/UserAccount.vue'
 import WalletConnectPopup from '@/components/WalletConnectPopup.vue'
 import {isMetamaskInstalled, getUserAddress} from './blockchain/metamask'
-
+import web3 from 'web3';
 
 export default {
   data() {
     return {}
   },
   async created() {
-    // this.$socket.$subscribe('ETHUSDT@miniTicker', payload => {
-    //   console.log('payload', payload);
-    // });
-
     // Connect metamask on init
     await this.connectMetamask();
     await this.$store.dispatch('loadRound');
     await this.$store.dispatch('getPriceStreams');
-
-    setTimeout(() => {
-      this.$store.commit('isReady', true);
-    }, 100);
-
+    await this.$store.dispatch('loadUser');
   },
   computed: {
     isHomepage() {
@@ -90,10 +88,10 @@ export default {
     },
     predictionsEntry() {
       let result = 0;
-      this.$store.state.round.predictions.forEach(item => {
-        result += item.amount;
+      this.$store.state.user.predictions.forEach(item => {
+        result += parseInt(item.entry_wei);
       });
-      return result;
+      return web3.utils.fromWei('' + result);
     }
   },
   methods: {
@@ -102,7 +100,6 @@ export default {
       if (this.$store.state.isMetamaskInstalled) {
         this.$store.commit('address', await getUserAddress());
         this.$bvModal.hide('modal-connect-wallet');
-        // await this.$store.dispatch('loadUser');
       }
     }
   },

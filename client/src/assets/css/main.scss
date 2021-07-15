@@ -92,6 +92,10 @@ body {
   .nav-link {
     color: #000;
     font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 
@@ -244,8 +248,22 @@ body {
   line-height: 38px;
 }
 
+.text-black {
+  color: #000;
+}
+
+a:hover {
+  &.no-decoration:hover {
+    text-decoration: none !important;
+  }
+}
+
 .bold-500 {
   font-weight: 500;
+}
+
+.bold-700 {
+  font-weight: 700;
 }
 
 .dropdown-menu.show {
@@ -370,6 +388,10 @@ body {
       display: block;
     }
   }
+}
+
+.pointer-event {
+  cursor: pointer;
 }
 
 @media (min-width: 1200px) {

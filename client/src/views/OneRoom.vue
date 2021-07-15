@@ -31,46 +31,53 @@
         <div class="col-lg-3 pr-lg-0 font-weight-bold members-block d-none d-lg-block">
           <div class="row">
             <div class="col-6 text-right pt-2 text-grey fz-14 text-uppercase">Members</div>
-            <div class="col-6 pl-0 pt-1 fz-18">80</div>
+            <div class="col-6 pl-0 pt-1 fz-18">{{ room.members }}</div>
           </div>
           <div class="row">
             <div class="col-6 text-right pt-2 mt-3 text-grey fz-14 text-uppercase">Total Stake</div>
             <div class="col-6 pl-0 fz-18 pt-1 mt-3 position-relative">
-              <small class="avg-price">≈$ 1606,77</small>
-              <span>0.66 ETH</span>
+              <small class="avg-price" v-if="room.entry > 0 &&  $store.state.priceETH > 0">
+                ≈$ {{ parseFloat(room.entry * $store.state.priceETH).toFixed(2) }}
+              </small>
+              <span>{{ room.entry }} ETH</span>
             </div>
           </div>
         </div>
-
       </div>
 
       <div class="row">
         <div class="col-lg-5 offset-lg-4 prediction-form">
 
-          <div class="row">
+          <div class="row" v-if="room.price_usd">
             <div class="col-5 text-right text-uppercase fz-14 font-weight-bold pr-0 text-grey">
               <div class="mt-4 pt-2">Current Price</div>
             </div>
             <div class="col-7 mt-2 pt-1 position-relative">
               <span class="change-pct">-1.1%</span>
-              <b class="fz-36 text-nowrap price">{{ room.price_usd }}</b>
+              <b class="fz-36 text-nowrap price pointer-event" @click="setCurrentPrice()">{{ room.price_usd }}</b>
             </div>
           </div>
 
           <div class="row">
-            <div class="col-lg pr-lg-0 ml-lg-3 pl-5 pr-5">
-              <input type="text" placeholder="Your prediction for BTC price"
+            <div class="col-lg pr-lg-0 ml-lg-3 pl-5 pr-5" v-if="$store.getters.canAddPrediction">
+              <input type="number" min="0" :step="getInputStep()" :placeholder="'Your prediction for '+ room.title +' price'"
+                     v-model="userPrice"
                      class="form-control fz-14 mt-3 input-border form-control-lg"/>
               <div class="text-center mt-3 pt-1 mb-4 pb-3 pb-lg-2">
-                <b-button pill class="btn-pad">Make a Prediction</b-button>
+                <b-button pill class="btn-pad" @click="makePrediction()">Make a Prediction</b-button>
               </div>
+            </div>
+            <div class="col-lg pr-lg-0 ml-lg-3 pt-4 pb-5 mb-4 mt-2" v-if="!$store.getters.canAddPrediction">
+              <p class="fz-18 bold-700 text-center">Acceptance of predictions is completed.</p>
             </div>
           </div>
 
-          <div class="row prediction-row mb-3">
-            <div class="col-4 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
-            <div class="col-5 fz-16">1) $27, 754.2345</div>
-            <div class="col-3 fz-16 pr-0 text-lg-right">0.02 ETH</div>
+          <div v-if="$store.state.user.predictions">
+            <div class="row prediction-row mb-3" v-for="(prediction, index) in filterPredictions" :key="prediction.id">
+              <div class="col-4 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
+              <div class="col-5 fz-16">{{ index + 1 }}) {{ predictionFormat(prediction.prediction_usd) }}</div>
+              <div class="col-3 fz-16 pr-0 text-lg-right">{{ weiToETH(prediction.entry_wei) }} ETH</div>
+            </div>
           </div>
 
         </div>
@@ -89,12 +96,22 @@
 
 <script>
 import RoundTimer from '@/components/RoundTimer';
+import web3 from 'web3';
+import {maxDigits} from '@/blockchain/metamask';
 
 export default {
   name: 'OneRoom',
   data() {
     return {
-      room: null
+      room: {},
+      userPrice: ''
+    }
+  },
+  computed: {
+    filterPredictions() {
+      return this.$store.state.user.predictions.filter(prediction => {
+        return this.room.id === prediction.room_id;
+      });
     }
   },
   created() {
@@ -119,9 +136,52 @@ export default {
     }
   },
   methods: {
+    getInputStep() {
+      if (this.room.price_usd) {
+        const price = this.room.price_usd.replace('$', '');
+        if (price < 1) {
+          return '0.000001';
+        } else if (price < 10) {
+          return '0.00001';
+        } else if (price < 100) {
+          return '0.0001';
+        } else if (price < 1000) {
+          return '0.001';
+        }
+      }
+      return '0.01';
+    },
+    predictionFormat(price) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: maxDigits(price)
+      }).format(price);
+    },
     getTokenImg(symbol) {
       const images = require.context('../assets/img/tokens/', false, /\-black.svg$/);
       return images('./' + symbol + "-black.svg");
+    },
+    setCurrentPrice() {
+      let price = this.room.price_usd.replace('$', '');
+      price = price.replace(',', '')
+      this.userPrice = price;
+    },
+    makePrediction() {
+      if (this.userPrice > 0 && this.$store.getters.canAddPrediction) {
+        this.$store.dispatch('makePrediction', {
+          price: this.userPrice,
+          room: this.room.id
+        });
+
+        this.userPrice = '';
+      }
+    },
+    weiToETH(value) {
+      if (value) {
+        return web3.utils.fromWei('' + value);
+      }
+      return 0;
     }
   },
   components: {

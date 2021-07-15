@@ -5,8 +5,8 @@ import VueMeta from 'vue-meta';
 import VueSplide from '@splidejs/vue-splide'
 import {BootstrapVue, BModal, BFormDatepicker} from 'bootstrap-vue'
 import store from '@/store'
-// import VueSocketIOExt from 'vue-socket.io-extended';
-// import {io} from 'socket.io-client';
+import VueSocketIOExt from 'vue-socket.io-extended';
+import {io} from 'socket.io-client';
 
 import App from './App.vue'
 
@@ -19,8 +19,8 @@ Vue.use(VueSplide)
 Vue.component('b-modal', BModal)
 Vue.component('b-form-datepicker', BFormDatepicker)
 
-// const socket = io('wss://stream.binance.com:9443');
-// Vue.use(VueSocketIOExt, socket, {store});
+const socket = io('http://localhost:9000');
+Vue.use(VueSocketIOExt, socket, {store});
 
 new Vue({
     i18n,

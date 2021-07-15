@@ -25,7 +25,10 @@ export default {
   props: ['compactView'],
   computed: {
     isClosed() {
-      return this.$store.state.round.secondsToEnd <= 2 * 60;
+      if (this.$store) {
+        return !this.$store.getters.canAddPrediction;
+      }
+      return true;
     },
     timeToEnd() {
       let minutes = 0;

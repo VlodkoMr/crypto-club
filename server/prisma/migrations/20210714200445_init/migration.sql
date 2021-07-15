@@ -35,7 +35,7 @@ CREATE TABLE `rounds` (
 -- CreateTable
 CREATE TABLE `user_payments` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `user_id` INTEGER NOT NULL,
+    `user_id` VARCHAR(191) NOT NULL,
     `type` VARCHAR(255) NOT NULL,
     `amount_wei` BIGINT NOT NULL,
     `status` BOOLEAN NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE `user_payments` (
 -- CreateTable
 CREATE TABLE `user_predictions` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `user_id` INTEGER NOT NULL,
+    `user_id` VARCHAR(191) NOT NULL,
     `room_id` INTEGER NOT NULL,
     `round_id` INTEGER NOT NULL,
     `is_winner` BOOLEAN,
@@ -65,7 +65,7 @@ CREATE TABLE `user_predictions` (
 
 -- CreateTable
 CREATE TABLE `users` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `id` VARCHAR(191) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
     `balance_wei` BIGINT NOT NULL DEFAULT 0,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),

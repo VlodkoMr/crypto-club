@@ -25,16 +25,20 @@
         <div class="row mb-2">
           <div class="col-6 fz-14 text-uppercase text-grey font-weight-bold">Total Balance</div>
           <div class="col-6 text-right position-relative">
-            <span class="avg-price">≈$ 4917,69</span>
-            <p class="bold-500">2.02 ETH</p>
+            <span class="avg-price" v-if="$store.state.user.balance > 0">
+              ≈$ {{ parseFloat($store.state.user.balance * $store.state.priceETH).toFixed(2) }}
+            </span>
+            <p class="bold-500">{{ $store.state.user.balance }} ETH</p>
           </div>
         </div>
 
         <div class="row mb-2">
           <div class="col-6 fz-14 text-uppercase text-grey font-weight-bold">Pending Prize</div>
           <div class="col-6 text-right position-relative">
-            <span class="avg-price">≈$ 4917,69</span>
-            <p class="bold-500">2.02 ETH</p>
+            <span class="avg-price" v-if="$store.state.user.pendingBalance > 0">
+              ≈$ {{ parseFloat($store.state.user.pendingBalance * $store.state.priceETH).toFixed(2) }}
+            </span>
+            <p class="bold-500">{{ $store.state.user.pendingBalance }} ETH</p>
           </div>
         </div>
 
