@@ -50,7 +50,7 @@ export default {
   name: 'HomepageNoUser',
   computed: {
     oneRoom() {
-      return this.$store.state.round.rooms[this.currentRoomIndex];
+      return this.$store.state.rooms[this.currentRoomIndex];
     }
   },
   data() {
@@ -62,7 +62,7 @@ export default {
   mounted() {
     this.roomsInterval = setInterval(() => {
       this.currentRoomIndex++;
-      if (this.currentRoomIndex > this.$store.state.round.rooms.length - 1) {
+      if (this.currentRoomIndex > this.$store.state.rooms.length - 1) {
         this.currentRoomIndex = 0;
       }
     }, 2500);

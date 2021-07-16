@@ -7,8 +7,6 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
-        lockRoundMinutes: 2,
-        entryETH: 0.01,
         priceETH: 0,
         isReady: false,
         isMetamaskInstalled: false,
@@ -23,12 +21,12 @@ export default new Vuex.Store({
             id: null,
             endTime: '',
             secondsToEnd: 0,
-            rooms: [],
-        }
+        },
+        rooms: [],
     },
     getters: {
         canAddPrediction(state) {
-            return state.round.secondsToEnd > state.lockRoundMinutes * 60;
+            return state.round.secondsToEnd > parseInt(process.env.VUE_APP_LOCK_ROUND_MINUTES) * 60;
         }
     },
     mutations: {
@@ -37,6 +35,9 @@ export default new Vuex.Store({
         },
         user(state, value) {
             state.user = value
+        },
+        userBalance(state, value) {
+            state.user.balance = value
         },
         updateETHPrice(state, value) {
             state.priceETH = value
@@ -50,15 +51,17 @@ export default new Vuex.Store({
         round(state, value) {
             this.state.round = value;
         },
+        rooms(state, value) {
+            this.state.rooms = value;
+        },
         addPrediction(state, value) {
             this.state.user.predictions.push(value);
         },
-        cleanUpPrediction(state) {
+        cleanUpPrediction() {
             this.state.user.predictions = [];
         },
         updateTokenPrice(state, value) {
-            // console.log(maxDigits(value.price))
-            this.state.round.rooms[value.index].price_usd = new Intl.NumberFormat('en-US', {
+            this.state.rooms[value.index].price_usd = new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: maxDigits(value.price)
@@ -68,7 +71,7 @@ export default new Vuex.Store({
             this.state.round.secondsToEnd = value;
         },
         SOCKET_ROOM_UPDATE_MEMBERS(state, value) {
-            state.round.rooms.forEach(room => {
+            state.rooms.forEach(room => {
                 if (room.id === value.room_id) {
                     room.entry = value.entry;
                     room.members = value.members;
@@ -78,14 +81,17 @@ export default new Vuex.Store({
     },
     actions: {
         loadRound({dispatch, commit, state}) {
-            axios.get(`http://localhost:9000/api/round`)
+            axios.get(`${process.env.VUE_APP_API_URL}/api/round`)
                 .then(response => {
-                    if (response.data) {
-                        commit('round', response.data);
-                        setTimeout(() => {
-                            commit('isReady', true);
-                        }, 50);
+                    commit('round', response.data);
+                    if (!state.rooms.length) {
+                        commit('rooms', response.data.rooms);
+                        dispatch('getBinancePriceStreams')
                     }
+
+                    setTimeout(() => {
+                        commit('isReady', true);
+                    }, 50);
                 });
 
             const timerInterval = setInterval(() => {
@@ -96,54 +102,55 @@ export default new Vuex.Store({
                     clearInterval(timerInterval);
                     commit('cleanUpPrediction');
                     dispatch('loadRound');
+
+                    setTimeout(() => {
+                        dispatch('loadUser');
+                    }, 1000);
                 }
             }, 1000);
         },
-        getPriceStreams({dispatch, commit, state}) {
-            setTimeout(() => {
-                state.round.rooms.forEach((room, roomIndex) => {
-                    const ticker = room.symbol + 'usdt';
-                    const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1m`);
-                    socket.onmessage = function (event) {
-                        const data = JSON.parse(event.data);
-                        commit('updateTokenPrice', {index: roomIndex, price: data.k.c})
-
-                        if (room.symbol === 'eth') {
-                            commit('updateETHPrice', data.k.c)
-                        }
-                    };
-                    socket.onclose = function (event) {
-                        console.log('[close] Соединение прервано')
-                        document.location.reload();
-                    };
-                });
-            }, 100);
+        getBinancePriceStreams({dispatch, commit, state}) {
+            state.rooms.forEach((room, roomIndex) => {
+                const ticker = room.symbol + 'usdt';
+                const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1m`);
+                socket.onmessage = function (event) {
+                    const data = JSON.parse(event.data);
+                    commit('updateTokenPrice', {index: roomIndex, price: data.k.c})
+                    if (room.symbol === 'eth') {
+                        commit('updateETHPrice', data.k.c)
+                    }
+                };
+                socket.onclose = function (event) {
+                    console.log('[close] Соединение прервано')
+                    document.location.reload();
+                };
+            });
         },
         makePrediction({dispatch, commit, state}, data) {
-            // balance
-
-            axios.post(`http://localhost:9000/api/add-prediction`, {
+            axios.post(`${process.env.VUE_APP_API_URL}/api/add-prediction`, {
                 user: state.user.id,
                 price: data.price,
                 room: data.room
             }).then(response => {
                 if (response.data.status === 'success') {
                     commit('addPrediction', response.data.prediction);
+                    dispatch('loadUser');
+                } else if (response.data.text) {
+                    alert(response.data.text);
                 } else {
-                    alert('Server error!')
+                    alert('Server error!');
                 }
             });
         },
         loadUser({dispatch, commit, state}) {
             if (state.user.address) {
-                axios.get(`http://localhost:9000/api/user?acc=${state.user.address}`)
+                axios.get(`${process.env.VUE_APP_API_URL}/api/user?acc=${state.user.address}`)
                     .then(response => {
                         if (response.data) {
                             commit('user', response.data);
                         }
                     });
             }
-
         }
     }
 })

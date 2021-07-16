@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div class="col-lg-6 offset-lg-2">
+    <div class="col-lg-6">
       <h1 class="text-center mb-4 font-weight-bold mt-lg-0 mt-4">My Predictions</h1>
       <div class="row">
         <div class="col-lg-4 col-6 text-right">

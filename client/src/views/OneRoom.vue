@@ -54,7 +54,9 @@
             </div>
             <div class="col-7 mt-2 pt-1 position-relative">
               <span class="change-pct">-1.1%</span>
-              <b class="fz-36 text-nowrap price pointer-event" @click="setCurrentPrice()">{{ room.price_usd }}</b>
+              <b class="fz-36 text-nowrap price"
+                 :class="{'pointer-event': $store.getters.canAddPrediction}"
+                 @click="setCurrentPrice()">{{ room.price_usd }}</b>
             </div>
           </div>
 
@@ -115,7 +117,7 @@ export default {
     }
   },
   created() {
-    this.$store.state.round.rooms.forEach(room => {
+    this.$store.state.rooms.forEach(room => {
       if (room.symbol === this.$route.params.id) {
         this.room = room;
       }
@@ -169,12 +171,15 @@ export default {
     },
     makePrediction() {
       if (this.userPrice > 0 && this.$store.getters.canAddPrediction) {
-        this.$store.dispatch('makePrediction', {
-          price: this.userPrice,
-          room: this.room.id
-        });
-
-        this.userPrice = '';
+        if (this.$store.state.user.balance >= process.env.VUE_APP_ENTRY_ETH) {
+          this.$store.dispatch('makePrediction', {
+            price: this.userPrice,
+            room: this.room.id
+          });
+          this.userPrice = '';
+        } else {
+          alert('Not enough balance for prediction.')
+        }
       }
     },
     weiToETH(value) {

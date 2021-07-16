@@ -2,24 +2,23 @@ import Vue from 'vue';
 import i18n from './i18n';
 import router from './router';
 import VueMeta from 'vue-meta';
-import VueSplide from '@splidejs/vue-splide'
-import {BootstrapVue, BModal, BFormDatepicker} from 'bootstrap-vue'
-import store from '@/store'
+import VueSplide from '@splidejs/vue-splide';
+import {BootstrapVue, BModal, BFormDatepicker} from 'bootstrap-vue';
+import store from '@/store';
 import VueSocketIOExt from 'vue-socket.io-extended';
 import {io} from 'socket.io-client';
+import App from './App.vue';
 
-import App from './App.vue'
+Vue.config.productionTip = false;
 
-Vue.config.productionTip = false
+Vue.use(VueMeta);
+Vue.use(BootstrapVue);
+Vue.use(VueSplide);
 
-Vue.use(VueMeta)
-Vue.use(BootstrapVue)
-Vue.use(VueSplide)
+Vue.component('b-modal', BModal);
+Vue.component('b-form-datepicker', BFormDatepicker);
 
-Vue.component('b-modal', BModal)
-Vue.component('b-form-datepicker', BFormDatepicker)
-
-const socket = io('http://localhost:9000');
+const socket = io(process.env.VUE_APP_API_URL);
 Vue.use(VueSocketIOExt, socket, {store});
 
 new Vue({

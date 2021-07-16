@@ -5,22 +5,18 @@ async function main() {
     const rooms = [{
         symbol: 'xrp',
         title: 'Ripple',
-        price_usd: 0,
         price_pct: 0
     }, {
         symbol: 'btc',
         title: 'Bitcoin',
-        price_usd: 0,
         price_pct: 0
     }, {
         symbol: 'eth',
         title: 'Ethereum',
-        price_usd: 0,
         price_pct: 0
     }, {
         symbol: 'doge',
         title: 'Dogecoin',
-        price_usd: 0,
         price_pct: 0
     }];
 

@@ -79,7 +79,6 @@ export default {
     // Connect metamask on init
     await this.connectMetamask();
     await this.$store.dispatch('loadRound');
-    await this.$store.dispatch('getPriceStreams');
     await this.$store.dispatch('loadUser');
   },
   computed: {

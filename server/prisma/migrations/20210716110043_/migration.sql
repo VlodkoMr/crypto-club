@@ -3,7 +3,6 @@ CREATE TABLE `rooms` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(255) NOT NULL,
     `symbol` VARCHAR(255) NOT NULL,
-    `price_usd` FLOAT NOT NULL DEFAULT 0,
     `price_pct` FLOAT NOT NULL DEFAULT 0,
 
     UNIQUE INDEX `rooms.symbol_unique`(`symbol`),
@@ -15,7 +14,7 @@ CREATE TABLE `round_results` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `round_id` INTEGER NOT NULL,
     `room_id` INTEGER NOT NULL,
-    `price_usd` FLOAT NOT NULL,
+    `price_usd` DECIMAL(18, 6) NOT NULL,
 
     INDEX `room_id`(`room_id`),
     INDEX `round_id`(`round_id`),
@@ -54,7 +53,8 @@ CREATE TABLE `user_predictions` (
     `room_id` INTEGER NOT NULL,
     `round_id` INTEGER NOT NULL,
     `is_winner` BOOLEAN,
-    `prediction_usd` FLOAT NOT NULL,
+    `is_new` BOOLEAN NOT NULL DEFAULT true,
+    `prediction_usd` DECIMAL(18, 6) NOT NULL,
     `entry_wei` BIGINT NOT NULL,
 
     INDEX `room_id`(`room_id`),

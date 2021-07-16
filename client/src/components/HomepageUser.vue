@@ -10,13 +10,13 @@
     </div>
     <div class="d-lg-none d-block splide-block">
       <splide :options="options">
-        <splide-slide v-for="room in $store.state.round.rooms" :key="room.id">
+        <splide-slide v-for="room in $store.state.rooms" :key="room.id">
           <RoomPreview :room="room"/>
         </splide-slide>
       </splide>
     </div>
     <div class="row d-none d-lg-flex">
-      <div class="col-lg-3 room-block" v-for="room in $store.state.round.rooms" :key="room.id">
+      <div class="col-lg-3 room-block" v-for="room in $store.state.rooms" :key="room.id">
         <RoomPreview :room="room"/>
       </div>
     </div>
