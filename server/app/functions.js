@@ -112,45 +112,9 @@ const startNewRound = async () => {
     }, 1000);
 }
 
-// const payForWinner = async (winPrice, roundId, roomId, payForOneUser) => {
-//     const price = parseFloat(winPrice / 1000000);
-//     const winner = await prisma.user_predictions.findFirst({
-//         where: {
-//             prediction_usd: price,
-//             round_id: roundId,
-//             room_id: roomId
-//         },
-//         orderBy: {
-//             id: "asc"
-//         }
-//     });
-//
-//     if (winner) {
-//         await prisma.users.updateMany({
-//             where: {
-//                 id: winner.user_id
-//             },
-//             data: {
-//                 balance_wei: {
-//                     increment: payForOneUser
-//                 }
-//             }
-//         });
-//
-//         await prisma.user_predictions.update({
-//             where: {id: winner.id},
-//             data: {is_winner: true}
-//         });
-//     }
-//
-//     console.log(price, roundId, roomId, web3.utils.fromWei('' + payForOneUser));
-//     console.log('--------');
-//
-// }
 
 const finishRound = async () => {
-    console.log('Finish round...');
-
+    // console.log('Finish round...');
     const pricePromises = [];
     const round = await currentRound();
     const rooms = await prisma.rooms.findMany();
@@ -173,81 +137,79 @@ const finishRound = async () => {
             });
 
             for (const room of roomsList) {
-                const resultExists = await prisma.round_results.findFirst({
+                const resultExists = await prisma.round_results.count({
                     where: {
                         round_id: round.id,
                         room_id: room.id
                     }
                 });
 
-                const resultPrice = results[room.index];
-                await prisma.round_results.create({
-                    data: {
-                        round_id: round.id,
-                        room_id: room.id,
-                        price_usd: resultPrice
-                    }
-                });
-                const predictions = await prisma.user_predictions.findMany({
-                    where: {
-                        round_id: round.id,
-                        room_id: room.id
-                    }
-                });
-
-                if (predictions.length) {
-                    let totalEntry = BigInt(0);
-                    let prices = [];
-
-                    predictions.forEach(prediction => {
-                        totalEntry += prediction.entry_wei;
-                        prices.push(prediction.prediction_usd * 1000000);
+                if (!resultExists) {
+                    const resultPrice = results[room.index];
+                    await prisma.round_results.create({
+                        data: {
+                            round_id: round.id,
+                            room_id: room.id,
+                            price_usd: resultPrice
+                        }
+                    });
+                    const predictions = await prisma.user_predictions.findMany({
+                        where: {
+                            round_id: round.id,
+                            room_id: room.id
+                        }
                     });
 
-                    const closest = findClosest(prices, resultPrice * 1000000);
-                    if (closest.length) {
-                        const payForUsers = totalEntry - (totalEntry / BigInt(100)) * BigInt(process.env.WEBSITE_FEE_PCT);
-                        const payForOneUser = payForUsers / BigInt(closest.length);
+                    if (predictions.length) {
+                        let totalEntry = BigInt(0);
+                        let prices = [];
 
-                        for (const winPrice of closest) {
-                            const price = parseFloat(winPrice / 1000000).toFixed(6);
+                        predictions.forEach(prediction => {
+                            totalEntry += prediction.entry_wei;
+                            prices.push(prediction.prediction_usd * 1000000);
+                        });
 
-                            // console.log('winPrice', winPrice, room.id, price);
+                        const closest = findClosest(prices, resultPrice * 1000000);
+                        if (closest.length) {
+                            const payForUsers = totalEntry - (totalEntry / BigInt(100)) * BigInt(process.env.WEBSITE_FEE_PCT);
+                            const payForOneUser = payForUsers / BigInt(closest.length);
 
-                            const winner = await prisma.user_predictions.findFirst({
-                                where: {
-                                    prediction_usd: price,
-                                    round_id: round.id,
-                                    room_id: room.id
-                                },
-                                orderBy: {
-                                    id: "asc"
-                                }
-                            });
+                            for (const winPrice of closest) {
+                                const price = parseFloat(winPrice / 1000000).toFixed(6);
+                                // console.log('winPrice', winPrice, room.id, price);
 
-                            if (winner) {
-                                await prisma.users.updateMany({
+                                const winner = await prisma.user_predictions.findFirst({
                                     where: {
-                                        id: winner.user_id
+                                        prediction_usd: price,
+                                        round_id: round.id,
+                                        room_id: room.id
                                     },
-                                    data: {
-                                        balance_wei: {
-                                            increment: payForOneUser
-                                        }
+                                    orderBy: {
+                                        id: "asc"
                                     }
                                 });
 
-                                await prisma.user_predictions.update({
-                                    where: {id: winner.id},
-                                    data: {is_winner: true}
-                                });
+                                if (winner) {
+                                    await prisma.users.updateMany({
+                                        where: {
+                                            id: winner.user_id
+                                        },
+                                        data: {
+                                            balance_wei: {
+                                                increment: payForOneUser
+                                            }
+                                        }
+                                    });
+
+                                    await prisma.user_predictions.update({
+                                        where: {id: winner.id},
+                                        data: {is_winner: true}
+                                    });
+                                }
+                                // console.log(price, round.id, room.id, web3.utils.fromWei('' + payForOneUser));
                             }
-
-                            // console.log(price, round.id, room.id, web3.utils.fromWei('' + payForOneUser));
-
+                            // console.log('--------');
                         }
-
-                        // console.log('--------');
                     }
                 }
             }
@@ -258,8 +220,6 @@ const finishRound = async () => {
         // console.log(e);
     });
 }
-
-// finishRound();
 
 module.exports = {
     startNewRound,

@@ -1,5 +1,5 @@
 const {Server} = require('socket.io');
-const {currentRound, roundPredictions, weiToETH, findUser} = require('./functions');
+const {currentRound, roundPredictions, weiToETH} = require('./functions');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const _ = require('lodash');
@@ -13,7 +13,6 @@ const initSocketServer = (server) => {
     });
 
     io.on('connection', async (socket) => {
-        let userId = null;
         const rooms = await prisma.rooms.findMany();
 
         const roundMembersInterval = setInterval(async () => {
@@ -32,8 +31,7 @@ const initSocketServer = (server) => {
                 socket.emit("ROOM_UPDATE_MEMBERS", {
                     room_id: room.id,
                     entry: entry,
-                    members: members,
-                    user: userId
+                    members: members
                 });
             });
         }, 3000);

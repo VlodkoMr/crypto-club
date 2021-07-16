@@ -26,7 +26,6 @@ CREATE TABLE `rounds` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `start_time` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
     `end_time` TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
-    `is_active` BOOLEAN NOT NULL DEFAULT true,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -56,6 +55,7 @@ CREATE TABLE `user_predictions` (
     `is_new` BOOLEAN NOT NULL DEFAULT true,
     `prediction_usd` DECIMAL(18, 6) NOT NULL,
     `entry_wei` BIGINT NOT NULL,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `room_id`(`room_id`),
     INDEX `round_id`(`round_id`),

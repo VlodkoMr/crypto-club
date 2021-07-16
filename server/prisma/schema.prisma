@@ -32,7 +32,6 @@ model rounds {
   id               Int                @id @default(autoincrement())
   start_time       DateTime           @default(now()) @db.Timestamp(0)
   end_time         DateTime           @default(now()) @db.Timestamp(0)
-  is_active        Boolean            @default(true)
   round_results    round_results[]
   user_predictions user_predictions[]
 }
@@ -60,6 +59,7 @@ model user_predictions {
   is_new         Boolean  @default(true)
   prediction_usd Decimal  @db.Decimal(18, 6)
   entry_wei      BigInt
+  created_at     DateTime @default(now())
   rooms          rooms    @relation(fields: [room_id], references: [id])
   rounds         rounds   @relation(fields: [round_id], references: [id])
   users          users    @relation(fields: [user_id], references: [id])

@@ -151,6 +151,18 @@ export default new Vuex.Store({
                         }
                     });
             }
+        },
+        allDateRounds({dispatch, commit, state}, date) {
+            return new Promise((resolve, reject) => {
+                axios.get(`${process.env.VUE_APP_API_URL}/api/date-rounds?date=${date}&acc=${state.user.address}`)
+                    .then(response => {
+                        if (response.data) {
+                            resolve(response.data);
+                        } else {
+                            resolve([]);
+                        }
+                    });
+            });
         }
     }
 })

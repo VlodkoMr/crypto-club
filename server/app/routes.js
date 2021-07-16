@@ -3,6 +3,7 @@ const router = express.Router();
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const web3 = require('web3');
+const _ = require('lodash');
 const {roundPredictions, currentRound, findUser, weiToETH} = require('./functions');
 
 router.get('/', (req, res) => {
@@ -116,5 +117,41 @@ router.get('/user', async (req, res) => {
         id: user.id
     });
 })
+
+router.get('/date-rounds', async (req, res) => {
+    const date = req.query.date;
+    const user = await findUser({address: req.query.acc});
+    let rounds = [];
+    let predictions = [];
+
+    if (date) {
+        rounds = await prisma.$queryRaw
+            `SELECT id, DATE_FORMAT(start_time, "%H:%i") start_time, DATE_FORMAT(end_time, "%H:%i") end_time
+        FROM rounds WHERE DATE_FORMAT(start_time, "%Y-%m-%d") = ${date};
+        `;
+    }
+
+    if (user && rounds) {
+        const roundIds = _.map(rounds, 'id');
+        predictions = await prisma.user_predictions.findMany({
+            select: {
+                id: true,
+                room_id: true,
+                prediction_usd: true,
+                round_id: true,
+                is_winner: true,
+                created_at: true
+            },
+            where: {
+                user_id: user.id,
+                round_id: {in: roundIds}
+            }
+        })
+    }
+
+    res.send({
+        rounds, predictions
+    });
+});
 
 module.exports = router;
