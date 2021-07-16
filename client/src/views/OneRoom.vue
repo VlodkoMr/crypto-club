@@ -88,7 +88,9 @@
 
     <div class="col-lg-4 chat-block mt-5 mt-lg-0 text-center">
       <div class="text-center">
-        <img src="../assets/img/chat.png" alt="" style="width: 350px;" class="ml-lg-5 ml-2">
+        <div class="ml-lg-5 ml-2">
+          <ChatApp/>
+        </div>
       </div>
     </div>
 
@@ -100,6 +102,7 @@
 import RoundTimer from '@/components/RoundTimer';
 import web3 from 'web3';
 import {maxDigits} from '@/blockchain/metamask';
+import ChatApp from '@/components/ChatApp';
 
 export default {
   name: 'OneRoom',
@@ -117,6 +120,9 @@ export default {
     }
   },
   created() {
+    // previous results
+
+
     this.$store.state.rooms.forEach(room => {
       if (room.symbol === this.$route.params.id) {
         this.room = room;
@@ -170,6 +176,11 @@ export default {
       this.userPrice = price;
     },
     makePrediction() {
+      if (!this.$store.state.user.address) {
+        this.$bvModal.show('modal-connect-wallet')
+        return false;
+      }
+
       if (this.userPrice > 0 && this.$store.getters.canAddPrediction) {
         if (this.$store.state.user.balance >= process.env.VUE_APP_ENTRY_ETH) {
           this.$store.dispatch('makePrediction', {
@@ -190,7 +201,8 @@ export default {
     }
   },
   components: {
-    RoundTimer
+    RoundTimer,
+    ChatApp
   }
 }
 </script>
@@ -258,7 +270,8 @@ h2 {
 }
 
 .chat-block {
-  width: 350px;
+  min-width: 350px;
+  max-width: 450px;
 }
 
 .prediction-form {

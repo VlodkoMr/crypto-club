@@ -25,6 +25,11 @@ export default new Vuex.Store({
         rooms: [],
     },
     getters: {
+        addressShort(state) {
+            const begin = state.user.address.slice(0, 6);
+            const end = state.user.address.slice(-4);
+            return `${begin}... ${end}`;
+        },
         canAddPrediction(state) {
             return state.round.secondsToEnd > parseInt(process.env.VUE_APP_LOCK_ROUND_MINUTES) * 60;
         }

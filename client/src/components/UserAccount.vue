@@ -8,9 +8,9 @@
 
     <div class="mobile-menu-button" v-if="$store.state.user.address">
       <b-button pill class="btn-secondary-fill" @click="isWalletPopupVisible = !isWalletPopupVisible">
-        <img src="../assets/img/user.svg" alt="">
+        <img :src="userImage" alt="" class="user-image">
         <span class="ml-3 mr-3 d-none d-lg-inline align-middle">
-          {{ address }}
+          {{ $store.getters.addressShort }}
         </span>
         <img src="../assets/img/icon-menu.svg" alt="" class="ml-3 mr-2 d-lg-none d-inline">
         <img src="../assets/img/white-arrow-down.svg" alt="" class="d-none d-lg-inline arrow-down">
@@ -74,6 +74,8 @@
 </template>
 
 <script>
+const CryptoJS = require("crypto-js");
+
 export default {
   name: 'MyWallet',
   data() {
@@ -82,10 +84,9 @@ export default {
     }
   },
   computed: {
-    address() {
-      const begin = this.$store.state.user.address.slice(0, 6);
-      const end = this.$store.state.user.address.slice(-4);
-      return `${begin}... ${end}`;
+    userImage() {
+      const userHash = CryptoJS.MD5(this.$store.state.user.address).toString();
+      return `https://avatars.dicebear.com/api/jdenticon/${userHash}.svg?radius=26&width=26&height=26`;
     }
   },
   created() {
@@ -130,5 +131,12 @@ h3 {
 
 .btn-pad {
   padding: 8px 30px;
+}
+
+.user-image {
+  background: #FFF;
+  border-radius: 50%;
+  display: inline-block;
+  padding: 2px;
 }
 </style>

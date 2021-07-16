@@ -18,18 +18,18 @@
 
     <div class="col-lg-4 overflow-lg-visible" v-if="oneRoom">
       <div class="one-currency">
-        <img :src="`../assets/img/tokens/${oneRoom.id}.svg`" alt="" class="token-img">
+        <img :src="getTokenImg(oneRoom.symbol)" alt="" class="token-img">
         <img src="../assets/img/dot.svg" alt="" class="dots-img">
         <h2>{{ oneRoom.title }}</h2>
         <span class="price-block">
-          $ {{ oneRoom.price }}
+          {{ oneRoom.price_usd }}
           <span class="price-now-text d-inline-block">PRICE NOW</span>
-          <span class="price-now red">{{ oneRoom.pct }}%</span>
+          <span class="price-now red">-1.1%</span>
         </span>
       </div>
       <div class="text-center mt-3 ml-3">
-        <p class="font-seaweed how-much">How much will it cost at 03:15p.m.?</p>
-        <b-button pill class="btn-pad" :to="{name:'OneRoom', 'params':{'id': oneRoom.id}}">Make a Prediction</b-button>
+        <p class="font-seaweed how-much">How much will it cost at {{ endRound }}?</p>
+        <b-button pill class="btn-pad" :to="{name:'OneRoom', 'params':{'id': oneRoom.symbol}}">Make a Prediction</b-button>
       </div>
     </div>
 
@@ -51,6 +51,9 @@ export default {
   computed: {
     oneRoom() {
       return this.$store.state.rooms[this.currentRoomIndex];
+    },
+    endRound() {
+      return this.$store.state.round.endTime;
     }
   },
   data() {
@@ -70,6 +73,12 @@ export default {
   destroyed() {
     clearInterval(this.roomsInterval);
   },
+  methods: {
+    getTokenImg(symbol) {
+      const images = require.context('../assets/img/tokens/', false, /.svg$/);
+      return images('./' + symbol + ".svg");
+    },
+  }
 }
 </script>
 

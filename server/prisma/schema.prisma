@@ -28,6 +28,15 @@ model round_results {
   @@index([round_id], name: "round_id")
 }
 
+model messages {
+  id               Int        @id @default(autoincrement())
+  text             String
+  user_id          String
+  created_at       DateTime   @default(now())
+
+  @@index([user_id], name: "user_id")
+}
+
 model rounds {
   id               Int                @id @default(autoincrement())
   start_time       DateTime           @default(now()) @db.Timestamp(0)
