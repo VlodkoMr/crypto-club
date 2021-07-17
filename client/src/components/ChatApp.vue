@@ -109,7 +109,7 @@ export default {
         this.isLoading = true;
         const lastId = this.$store.state.chat.messages[0].id;
         this.$store.dispatch('loadChatMessages', lastId).then(messages => {
-          if (messages.length < 1) {
+          if (messages.length < 2) {
             this.allLoaded = true;
           }
 
