@@ -90,8 +90,8 @@ export default {
     }
   },
   created() {
+    this.visible = true;
     this.$store.dispatch('loadChatMessages').then(() => {
-      this.visible = true;
       this.isLoading = false;
     });
   },
@@ -119,12 +119,19 @@ export default {
 
             resolve(messages);
             this.isLoading = false;
-          }, 25);
+          }, 50);
         });
       }
     },
     onMessageSubmit(message) {
-      this.$store.dispatch('newChatMessage', message);
+      if (this.$store.state.user.id) {
+        this.$store.dispatch('newChatMessage', message);
+      } else {
+        this.$bvModal.show('modal-connect-wallet');
+        this.$store.dispatch('loadChatMessages').then(() => {
+          this.isLoading = false;
+        });
+      }
     },
   },
   components: {

@@ -229,7 +229,10 @@ const finishRound = async () => {
 }
 
 const serializeMessage = (message, user) => {
-    const myself = message.user_id === user.id;
+    let myself = false;
+    if (user && message.user_id === user.id) {
+        myself = true;
+    }
 
     return {
         id: message.id,

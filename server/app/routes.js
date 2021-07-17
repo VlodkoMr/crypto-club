@@ -78,11 +78,17 @@ router.post('/chat-messages', async (req, res) => {
         participantList.push(serializeChatUser(message.users))
     })
 
-    res.send({
+    const result = {
         messages: messagesList,
         participants: participantList,
-        myself: serializeChatUser(user)
-    });
+        myself: {}
+    };
+
+    if (user) {
+        result['myself'] = serializeChatUser(user);
+    }
+
+    res.send(result);
 });
 
 router.post('/add-prediction', async (req, res) => {
