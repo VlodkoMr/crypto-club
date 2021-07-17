@@ -85,7 +85,7 @@ export default {
   },
   computed: {
     userImage() {
-      const userHash = CryptoJS.MD5(this.$store.state.user.address).toString();
+      const userHash = CryptoJS.MD5(this.$store.state.user.id).toString();
       return `https://avatars.dicebear.com/api/jdenticon/${userHash}.svg?radius=26&width=26&height=26`;
     }
   },

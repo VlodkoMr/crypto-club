@@ -2,6 +2,7 @@ import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
 import {maxDigits} from './blockchain/metamask';
+import {io} from 'socket.io-client';
 
 Vue.use(Vuex);
 
@@ -23,6 +24,11 @@ export default new Vuex.Store({
             secondsToEnd: 0,
         },
         rooms: [],
+        chat: {
+            messages: [],
+            participants: [],
+            myself: {}
+        }
     },
     getters: {
         addressShort(state) {
@@ -54,26 +60,31 @@ export default new Vuex.Store({
             state.isReady = value
         },
         round(state, value) {
-            this.state.round = value;
+            state.round = value;
         },
         rooms(state, value) {
-            this.state.rooms = value;
+            state.rooms = value;
         },
         addPrediction(state, value) {
-            this.state.user.predictions.push(value);
+            state.user.predictions.push(value);
         },
-        cleanUpPrediction() {
-            this.state.user.predictions = [];
+        cleanUpPrediction(state) {
+            state.user.predictions = [];
         },
         updateTokenPrice(state, value) {
-            this.state.rooms[value.index].price_usd = new Intl.NumberFormat('en-US', {
+            state.rooms[value.index].price_usd = new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: 'USD',
                 minimumFractionDigits: maxDigits(value.price)
             }).format(value.price);
         },
         secondsToEnd(state, value) {
-            this.state.round.secondsToEnd = value;
+            state.round.secondsToEnd = value;
+        },
+        loadChatMessages(state, value) {
+            state.chat.messages.unshift(...value.messages)
+            state.chat.participants.unshift(...value.participants)
+            state.chat.myself = value.myself;
         },
         SOCKET_ROOM_UPDATE_MEMBERS(state, value) {
             state.rooms.forEach(room => {
@@ -82,6 +93,12 @@ export default new Vuex.Store({
                     room.members = value.members;
                 }
             });
+        },
+        SOCKET_CHAT_MESSAGE(state, value) {
+            if (value.participantId !== state.chat.myself.id) {
+                value.myself = false;
+            }
+            state.chat.messages.push(value);
         }
     },
     actions: {
@@ -167,6 +184,26 @@ export default new Vuex.Store({
                             resolve([]);
                         }
                     });
+            });
+        },
+        newChatMessage({dispatch, commit, state}, message) {
+            const socket = io(process.env.VUE_APP_API_URL);
+            socket.emit("NEW_CHAT_MESSAGE", {
+                'content': message.content,
+                'user': state.user.id
+            });
+        },
+        loadChatMessages({dispatch, commit, state}, lastId = null) {
+            return new Promise((resolve, reject) => {
+                axios.post(`${process.env.VUE_APP_API_URL}/api/chat-messages`, {
+                    'user': state.user.id,
+                    'lastId': lastId
+                }).then(response => {
+                    commit('loadChatMessages', response.data);
+                    resolve(response.data.messages);
+                }).catch(e => {
+                    console.log(e);
+                });
             });
         }
     }

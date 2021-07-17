@@ -3,6 +3,7 @@ const binance = new Binance();
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const web3 = require('web3');
+const CryptoJS = require("crypto-js");
 
 function removeArrItem(arr) {
     let what, a = arguments,
@@ -66,6 +67,12 @@ const findUser = async (where) => {
 
 const weiToETH = (value, digits = 4) => {
     return parseFloat(web3.utils.fromWei('' + value)).toFixed(digits);
+}
+
+const addressShort = (address) => {
+    const begin = address.slice(0, 6);
+    const end = address.slice(-4);
+    return `${begin}... ${end}`;
 }
 
 const binancePricePromise = (token) => {
@@ -221,10 +228,44 @@ const finishRound = async () => {
     });
 }
 
+const serializeMessage = (message, user) => {
+    const myself = message.user_id === user.id;
+
+    return {
+        id: message.id,
+        content: message.text,
+        myself: myself,
+        participantId: CryptoJS.MD5(message.user_id).toString(),
+        timestamp: {
+            year: message.created_at.getFullYear(),
+            month: message.created_at.getMonth() + 1,
+            day: message.created_at.getDate(),
+            hour: message.created_at.getHours(),
+            minute: message.created_at.getMinutes()
+        },
+        type: 'text'
+    }
+}
+
+const userImage = (userHash) => {
+    return `https://avatars.dicebear.com/api/jdenticon/${userHash}.svg?radius=30&width=30&height=30`;
+}
+
+const serializeChatUser = (user) => {
+    const userIdHash = CryptoJS.MD5(user.id).toString();
+    return {
+        name: addressShort(user.address),
+        id: userIdHash,
+        profilePicture: userImage(userIdHash)
+    }
+}
+
 module.exports = {
     startNewRound,
     roundPredictions,
     currentRound,
     findUser,
-    weiToETH
+    weiToETH,
+    serializeMessage,
+    serializeChatUser
 }

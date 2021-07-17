@@ -1,9 +1,10 @@
 <template>
   <div class="chat-block">
     <Chat v-if="visible"
-          :participants="participants"
-          :myself="myself"
-          :messages="messages"
+          :participants="$store.state.chat.participants"
+          :load-more-messages="loadMoreMessages"
+          :myself="$store.state.chat.myself"
+          :messages="$store.state.chat.messages"
           :chat-title="chatTitle"
           :placeholder="placeholder"
           :colors="colors"
@@ -11,7 +12,6 @@
           :hide-close-button="hideCloseButton"
           :submit-icon-size="submitIconSize"
           :submit-image-icon-size="submitImageIconSize"
-          :load-more-messages="toLoad.length > 0 ? loadMoreMessages : null"
           :async-mode="asyncMode"
           :scroll-bottom="scrollBottom"
           :display-header="displayHeader"
@@ -23,6 +23,8 @@
   </div>
 </template>
 
+<!--:load-more-messages="toLoad.length > 0 ? loadMoreMessages : null"-->
+
 <script>
 import {Chat} from 'vue-quick-chat';
 import 'vue-quick-chat/dist/vue-quick-chat.css';
@@ -31,47 +33,9 @@ export default {
   name: 'ChatApp',
   data() {
     return {
-      visible: true,
-      participants: [
-        {
-          name: 'Arnaldo',
-          id: 1,
-          profilePicture: this.userImage(3)
-        },
-        {
-          name: 'José',
-          id: 2,
-          profilePicture: this.userImage(2)
-        }
-      ],
-      myself: {
-        name: 'Matheus S.',
-        id: 3,
-        profilePicture: this.userImage(1)
-      },
-      messages: [
-        {
-          content: 'received messages',
-          myself: false,
-          participantId: 1,
-          timestamp: {year: 2019, month: 3, day: 5, hour: 20, minute: 10, second: 3, millisecond: 123},
-          type: 'text'
-        },
-        {
-          content: 'sent messages',
-          myself: true,
-          participantId: 3,
-          timestamp: {year: 2019, month: 4, day: 5, hour: 19, minute: 10, second: 3, millisecond: 123},
-          type: 'text'
-        },
-        {
-          content: 'other received messages',
-          myself: false,
-          participantId: 2,
-          timestamp: {year: 2019, month: 5, day: 5, hour: 10, minute: 10, second: 3, millisecond: 123},
-          type: 'text'
-        }
-      ],
+      visible: false,
+      isLoading: true,
+      allLoaded: false,
       chatTitle: 'Club of Crypto Lovers',
       placeholder: 'send your message',
       colors: {
@@ -105,26 +69,6 @@ export default {
       submitImageIconSize: 25,
       submitIconSize: 25,
       asyncMode: false,
-      toLoad: [
-        {
-          content: 'Hey, John Doe! How are you today?',
-          myself: false,
-          participantId: 2,
-          timestamp: {year: 2011, month: 3, day: 5, hour: 10, minute: 10, second: 3, millisecond: 123},
-          uploaded: true,
-          viewed: true,
-          type: 'text'
-        },
-        {
-          content: "Hey, Adam! I'm feeling really fine this evening.",
-          myself: true,
-          participantId: 3,
-          timestamp: {year: 2010, month: 0, day: 5, hour: 19, minute: 10, second: 3, millisecond: 123},
-          uploaded: true,
-          viewed: true,
-          type: 'text'
-        },
-      ],
       scrollBottom: {
         messageSent: true,
         messageReceived: true
@@ -145,36 +89,42 @@ export default {
       },
     }
   },
+  created() {
+    this.$store.dispatch('loadChatMessages').then(() => {
+      this.visible = true;
+      this.isLoading = false;
+    });
+  },
   methods: {
-    userImage(userHash) {
-      return `https://avatars.dicebear.com/api/jdenticon/${userHash}.svg?radius=30&width=30&height=30`;
-    },
     onType: function (event) {
       //here you can set any behavior
     },
     loadMoreMessages(resolve) {
-      setTimeout(() => {
-        resolve(this.toLoad); //We end the loading state and add the messages
-        //Make sure the loaded messages are also added to our local messages copy or they will be lost
-        this.messages.unshift(...this.toLoad);
-        this.toLoad = [];
-      }, 1000);
-    },
-    onMessageSubmit: function (message) {
-      /*
-      * example simulating an upload callback.
-      * It's important to notice that even when your message wasn't send
-      * yet to the server you have to add the message into the array
-      */
-      this.messages.push(message);
+      if (this.allLoaded) {
+        resolve();
+        return;
+      }
 
-      /*
-      * you can update message state after the server response
-      */
-      // timeout simulating the request
-      setTimeout(() => {
-        message.uploaded = true
-      }, 2000)
+      if (!this.isLoading) {
+        this.isLoading = true;
+        const lastId = this.$store.state.chat.messages[0].id;
+        this.$store.dispatch('loadChatMessages', lastId).then(messages => {
+          if (messages.length < 1) {
+            this.allLoaded = true;
+          }
+
+          setTimeout(() => {
+            const objDiv = document.querySelectorAll('.message-container')[1];
+            objDiv.scrollIntoView(true);
+
+            resolve(messages);
+            this.isLoading = false;
+          }, 25);
+        });
+      }
+    },
+    onMessageSubmit(message) {
+      this.$store.dispatch('newChatMessage', message);
     },
   },
   components: {

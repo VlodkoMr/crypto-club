@@ -92,6 +92,9 @@ ALTER TABLE `round_results` ADD FOREIGN KEY (`room_id`) REFERENCES `rooms`(`id`)
 ALTER TABLE `round_results` ADD FOREIGN KEY (`round_id`) REFERENCES `rounds`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `messages` ADD FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `user_payments` ADD FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey

@@ -4,7 +4,7 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const web3 = require('web3');
 const _ = require('lodash');
-const {roundPredictions, currentRound, findUser, weiToETH} = require('./functions');
+const {roundPredictions, currentRound, findUser, weiToETH, serializeMessage, serializeChatUser} = require('./functions');
 
 router.get('/', (req, res) => {
     res.send('Hello API');
@@ -44,6 +44,45 @@ router.get('/round', async (req, res) => {
         rooms: roomSerialize
     }
     res.send(result);
+});
+
+router.post('/chat-messages', async (req, res) => {
+    const user = await findUser({id: req.body.user});
+    let where = {};
+    let take = -10;
+
+    if (req.body.lastId) {
+        where = {
+            id: {
+                lt: req.body.lastId
+            }
+        };
+        take = -2;
+    }
+
+    const messages = await prisma.messages.findMany({
+        where: where,
+        orderBy: {
+            id: "asc",
+        },
+        take: take,
+        include: {
+            users: true
+        }
+    });
+
+    let messagesList = [];
+    let participantList = [];
+    messages.forEach(message => {
+        messagesList.push(serializeMessage(message, user));
+        participantList.push(serializeChatUser(message.users))
+    })
+
+    res.send({
+        messages: messagesList,
+        participants: participantList,
+        myself: serializeChatUser(user)
+    });
 });
 
 router.post('/add-prediction', async (req, res) => {

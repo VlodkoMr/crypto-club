@@ -33,6 +33,7 @@ model messages {
   text             String
   user_id          String
   created_at       DateTime   @default(now())
+  users            users      @relation(fields: [user_id], references: [id])
 
   @@index([user_id], name: "user_id")
 }
@@ -85,4 +86,5 @@ model users {
   created_at       DateTime           @default(now())
   user_payments    user_payments[]
   user_predictions user_predictions[]
+  messages         messages[]
 }
