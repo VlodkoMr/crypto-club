@@ -32,7 +32,7 @@
           </b-dropdown>
         </div>
 
-        <div class="col-lg-4 col-12 order-lg-0 order-1 order-2 mt-lg-0 mt-2 pl-4 pr-4">
+        <div class="col-lg-4 col-12 order-lg-0 order-2 mt-lg-0 mt-2 pl-4 pr-4">
           <b-form-datepicker
               :max="maxDate"
               v-model="selectedDate"
