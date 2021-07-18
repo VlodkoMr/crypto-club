@@ -77,6 +77,10 @@ export default new Vuex.Store({
                 currency: 'USD',
                 minimumFractionDigits: maxDigits(value.price)
             }).format(value.price);
+            state.rooms[value.index].price_raw = value.price;
+        },
+        updateTokenPct(state, value) {
+            state.rooms[value.index].price_pct = value.diff;
         },
         secondsToEnd(state, value) {
             state.round.secondsToEnd = value;
@@ -133,6 +137,7 @@ export default new Vuex.Store({
         },
         getBinancePriceStreams({dispatch, commit, state}) {
             state.rooms.forEach((room, roomIndex) => {
+                // Current price
                 const ticker = room.symbol + 'usdt';
                 const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1m`);
                 socket.onmessage = function (event) {
@@ -145,6 +150,19 @@ export default new Vuex.Store({
                 socket.onclose = function (event) {
                     console.log('[close] Соединение прервано')
                     document.location.reload();
+                };
+
+                // Price change pct
+                const socketDay = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1d`);
+                socketDay.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    const prevPrice = data.k.o;
+                    const currentPrice = state.rooms[roomIndex].price_raw;
+
+                    if (prevPrice > 0 && currentPrice) {
+                        const diffPct = ((currentPrice - prevPrice) / prevPrice) * 100;
+                        commit('updateTokenPct', {index: roomIndex, diff: diffPct.toFixed(2)});
+                    }
                 };
             });
         },

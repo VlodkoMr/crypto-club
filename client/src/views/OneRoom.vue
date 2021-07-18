@@ -23,9 +23,11 @@
         </div>
 
         <div class="col-lg text-center text-lg-left">
-          <img :src="getTokenImg(room.symbol)" alt="" class="token-img">
           <img src="../assets/img/dot.svg" alt="" class="dots-img">
-          <h1 class="pr-5 mr-3 pr-lg-0">{{ room.title }}</h1>
+          <h1 class="pr-5 mr-3 pr-lg-0">
+            {{ room.title }}
+            <img :src="getTokenImg(room.symbol)" alt="" class="token-img">
+          </h1>
         </div>
 
         <div class="col-lg-3 pr-lg-0 font-weight-bold members-block d-none d-lg-block">
@@ -34,8 +36,8 @@
             <div class="col-6 pl-0 pt-1 fz-18">{{ room.members }}</div>
           </div>
           <div class="row">
-            <div class="col-6 text-right pt-2 mt-3 text-grey fz-14 text-uppercase">Total Stake</div>
-            <div class="col-6 pl-0 fz-18 pt-1 mt-3 position-relative">
+            <div class="col-6 text-right pt-1 mt-3 text-grey fz-14 text-uppercase">Total Stake</div>
+            <div class="col-6 pl-0 fz-18 mt-3 position-relative">
               <small class="avg-price" v-if="room.entry > 0 &&  $store.state.priceETH > 0">
                 ≈$ {{ parseFloat(room.entry * $store.state.priceETH).toFixed(2) }}
               </small>
@@ -49,11 +51,11 @@
         <div class="col-lg-5 offset-lg-4 prediction-form">
 
           <div class="row" v-if="room.price_usd">
-            <div class="col-5 text-right text-uppercase fz-14 font-weight-bold pr-0 text-grey">
-              <div class="mt-4 pt-2">Current Price</div>
+            <div class="col-6 text-right text-uppercase fz-14 font-weight-bold pr-0 text-grey">
+              <div class="mt-4 pt-2 pl-3">Current Price</div>
             </div>
-            <div class="col-7 mt-2 pt-1 position-relative">
-              <span class="change-pct">-1.1%</span>
+            <div class="col-6 mt-2 pt-1 position-relative">
+              <span class="change-pct" v-if="room.price_pct">{{ room.price_pct }}%</span>
               <b class="fz-36 text-nowrap price"
                  :class="{'pointer-event': $store.getters.canAddPrediction}"
                  @click="setCurrentPrice()">{{ room.price_usd }}</b>
@@ -70,14 +72,14 @@
               </div>
             </div>
             <div class="col-lg pr-lg-0 ml-lg-3 pt-4 pb-5 mb-4 mt-2" v-if="!$store.getters.canAddPrediction">
-              <p class="fz-18 bold-700 text-center">Acceptance of predictions is completed.</p>
+              <p class="fz-18 bold-700 text-center pl-5">Acceptance of predictions is completed.</p>
             </div>
           </div>
 
           <div v-if="$store.state.user.predictions">
             <div class="row prediction-row mb-3" v-for="(prediction, index) in filterPredictions" :key="prediction.id">
-              <div class="col-4 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
-              <div class="col-5 fz-16">{{ index + 1 }}) {{ predictionFormat(prediction.prediction_usd) }}</div>
+              <div class="col-5 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
+              <div class="col fz-16">{{ index + 1 }}) {{ predictionFormat(prediction.prediction_usd) }}</div>
               <div class="col-3 fz-16 pr-0 text-lg-right">{{ weiToETH(prediction.entry_wei) }} ETH</div>
             </div>
           </div>
@@ -213,6 +215,9 @@ h1 {
   margin-top: 22px;
   margin-left: 12px;
   font-size: 48px;
+  position: relative;
+  display: inline;
+  line-height: 96px;
 }
 
 h2 {
@@ -220,8 +225,8 @@ h2 {
 }
 
 .token-img {
-  top: -14px;
-  right: 22%;
+  top: -33px;
+  right: -60px;
 }
 
 .dots-img {
@@ -253,7 +258,7 @@ h2 {
   color: #FF8989;
   position: absolute;
   top: -18px;
-  left: 146px;
+  left: 124px;
   font-weight: 500;
 }
 
@@ -263,8 +268,8 @@ h2 {
 
 .avg-price {
   position: absolute;
-  top: -9px;
-  left: 19px;
+  top: -12px;
+  left: 23%;
   font-size: 12px;
   color: #464646;
 }
@@ -275,8 +280,8 @@ h2 {
 }
 
 .prediction-form {
-  min-width: 50%;
-  margin-left: 25%;
+  min-width: 45%;
+  margin-left: 30%;
 }
 
 @media all and (max-width: 992px) {

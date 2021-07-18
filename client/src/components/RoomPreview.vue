@@ -2,7 +2,7 @@
   <div class="ml-3">
     <h3>{{ room.title }}</h3>
     <div class="row">
-      <img src="../assets/img/tokens/eth-black.svg" alt="" class="token-img">
+      <img :src="getTokenImg(room.symbol)" alt="" class="token-img">
       <img src="../assets/img/dot.svg" alt="" class="dots-img">
 
       <div class="col-5 pt-2 mt-1 text-grey font-weight-bold fz-14 pr-0">TOTAL STAKE</div>
@@ -22,6 +22,12 @@
 export default {
   name: 'RoomPreview',
   props: ['room'],
+  methods: {
+    getTokenImg(symbol) {
+      const images = require.context('../assets/img/tokens/', false, /\-black.svg$/);
+      return images('./' + symbol + "-black.svg");
+    },
+  }
 }
 </script>
 
@@ -42,8 +48,8 @@ h3 {
 .token-img {
   position: absolute;
   z-index: -1;
-  top: 0;
-  right: 24%;
+  top: 3px;
+  right: 20%;
 }
 
 @media all and (min-width: 992px) and (max-width: 1340px) {
