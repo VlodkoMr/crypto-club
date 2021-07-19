@@ -46,7 +46,7 @@ CREATE TABLE `user_payments` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `user_id` VARCHAR(191) NOT NULL,
     `type` VARCHAR(255) NOT NULL,
-    `amount_wei` BIGINT NOT NULL,
+    `amount_wei` VARCHAR(30) NOT NULL,
     `status` BOOLEAN NOT NULL,
     `hash` VARCHAR(255),
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -66,6 +66,7 @@ CREATE TABLE `user_predictions` (
     `is_new` BOOLEAN NOT NULL DEFAULT true,
     `prediction_usd` DECIMAL(18, 6) NOT NULL,
     `entry_wei` BIGINT NOT NULL,
+    `win_amount_wei` VARCHAR(30) NOT NULL DEFAULT '0',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     INDEX `room_id`(`room_id`),
@@ -78,7 +79,7 @@ CREATE TABLE `user_predictions` (
 CREATE TABLE `users` (
     `id` VARCHAR(191) NOT NULL,
     `address` VARCHAR(255) NOT NULL,
-    `balance_wei` BIGINT NOT NULL DEFAULT 0,
+    `balance_wei` VARCHAR(30) NOT NULL DEFAULT '0',
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
     UNIQUE INDEX `users.address_unique`(`address`),

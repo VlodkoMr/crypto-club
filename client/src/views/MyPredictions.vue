@@ -249,19 +249,6 @@ export default {
   float: right;
 }
 
-.table {
-  font-size: 14px;
-}
-
-.table th, .table td {
-  border: none !important;
-  padding: 8px;
-}
-
-thead {
-  background: rgba(0, 0, 0, .15);
-}
-
 .prediction-row {
   transition: all ease .3s;
 

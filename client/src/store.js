@@ -23,6 +23,7 @@ export default new Vuex.Store({
             endTime: '',
             secondsToEnd: 0,
         },
+        prevRoundResults: {},
         rooms: [],
         chat: {
             messages: [],
@@ -34,7 +35,7 @@ export default new Vuex.Store({
         addressShort(state) {
             const begin = state.user.address.slice(0, 6);
             const end = state.user.address.slice(-4);
-            return `${begin}... ${end}`;
+            return `${begin}...${end}`;
         },
         canAddPrediction(state) {
             return state.round.secondsToEnd > parseInt(process.env.VUE_APP_LOCK_ROUND_MINUTES) * 60;
@@ -61,6 +62,12 @@ export default new Vuex.Store({
         },
         round(state, value) {
             state.round = value;
+        },
+        prevRoundResults(state, value) {
+            state.prevRoundResults = value;
+        },
+        clearPrevRoomResults(state, value) {
+            state.prevRoundResults[value] = null;
         },
         rooms(state, value) {
             state.rooms = value;
@@ -110,6 +117,7 @@ export default new Vuex.Store({
             axios.get(`${process.env.VUE_APP_API_URL}/api/round`)
                 .then(response => {
                     commit('round', response.data);
+
                     if (!state.rooms.length) {
                         commit('rooms', response.data.rooms);
                         dispatch('getBinancePriceStreams')
@@ -131,6 +139,7 @@ export default new Vuex.Store({
 
                     setTimeout(() => {
                         dispatch('loadUser');
+                        dispatch('loadPreviousRoundResults');
                     }, 1000);
                 }
             }, 1000);
@@ -223,6 +232,24 @@ export default new Vuex.Store({
                     console.log(e);
                 });
             });
+        },
+        loadPreviousRoundResults({dispatch, commit, state}) {
+            axios.get(`${process.env.VUE_APP_API_URL}/api/prev-round-results?acc=${state.user.address}`)
+                .then(response => {
+                    if (response.data) {
+                        commit('prevRoundResults', response.data);
+                    }
+                });
+        },
+        tryAgainPrediction({dispatch, commit, state}, roomId) {
+            axios.post(`${process.env.VUE_APP_API_URL}/api/try-again-prediction`, {
+                'room': roomId,
+                'user': state.user.id,
+            }).catch(e => {
+                alert('Server error');
+            });
+
+            commit('clearPrevRoomResults', roomId);
         }
     }
 })

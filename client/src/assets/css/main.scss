@@ -256,6 +256,10 @@ body {
   font-size: 18px;
 }
 
+.fz-20 {
+  font-size: 20px;
+}
+
 .fz-24 {
   font-size: 24px;
 }
@@ -417,6 +421,19 @@ a:hover {
 
 .pointer-event {
   cursor: pointer;
+}
+
+.table {
+  font-size: 14px;
+}
+
+.table th, .table td {
+  border: none !important;
+  padding: 8px;
+}
+
+thead {
+  background: rgba(0, 0, 0, .15);
 }
 
 @media (min-width: 1200px) {

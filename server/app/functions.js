@@ -72,7 +72,7 @@ const weiToETH = (value, digits = 4) => {
 const addressShort = (address) => {
     const begin = address.slice(0, 6);
     const end = address.slice(-4);
-    return `${begin}... ${end}`;
+    return `${begin}...${end}`;
 }
 
 const binancePricePromise = (token) => {
@@ -197,20 +197,30 @@ const finishRound = async () => {
                                 });
 
                                 if (winner) {
-                                    await prisma.users.updateMany({
+                                    const user = await prisma.users.findFirst({
+                                        where: {
+                                            id: winner.user_id
+                                        },
+                                    });
+
+                                    let newUserBalance = BigInt(user.balance_wei);
+                                    newUserBalance += payForOneUser;
+
+                                    await prisma.users.update({
                                         where: {
                                             id: winner.user_id
                                         },
                                         data: {
-                                            balance_wei: {
-                                                increment: payForOneUser
-                                            }
+                                            balance_wei: newUserBalance.toString()
                                         }
                                     });
 
                                     await prisma.user_predictions.update({
                                         where: {id: winner.id},
-                                        data: {is_winner: true}
+                                        data: {
+                                            is_winner: true,
+                                            win_amount_wei: payForOneUser.toString()
+                                        }
                                     });
                                 }
                                 // console.log(price, round.id, room.id, web3.utils.fromWei('' + payForOneUser));
@@ -263,6 +273,31 @@ const serializeChatUser = (user) => {
     }
 }
 
+const getRoundWinners = async (roomId, roundId) => {
+    let winnersList = [];
+    const winners = await prisma.user_predictions.findMany({
+        where: {
+            is_winner: true,
+            room_id: roomId,
+            round_id: roundId
+        },
+        include: {
+            users: true
+        }
+    });
+
+    winners.forEach(winner => {
+        winnersList.push({
+            id: winner.id,
+            prediction_usd: winner.prediction_usd,
+            created_at: winner.created_at,
+            user: addressShort(winner.users.address)
+        });
+    });
+
+    return winnersList;
+}
+
 module.exports = {
     startNewRound,
     roundPredictions,
@@ -270,5 +305,7 @@ module.exports = {
     findUser,
     weiToETH,
     serializeMessage,
-    serializeChatUser
+    serializeChatUser,
+    addressShort,
+    getRoundWinners
 }

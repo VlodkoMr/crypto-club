@@ -121,6 +121,8 @@ export default {
             this.isLoading = false;
           }, 50);
         });
+      } else {
+        resolve();
       }
     },
     onMessageSubmit(message) {

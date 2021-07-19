@@ -2,7 +2,6 @@
   <div class="row">
     <div class="col-lg">
       <div class="row">
-
         <div class="col-lg-5">
           <div class="row">
             <div class="col-lg-4 col-3">
@@ -14,7 +13,7 @@
               </b-button>
             </div>
 
-            <div class="col text-center text-lg-left pr-lg-2 pl-0 pl-lg-2">
+            <div class="col text-center text-lg-left pr-lg-2 pl-0 pl-lg-2" v-if="!prevRound">
               <RoundTimer compact-view="true"/>
             </div>
 
@@ -30,7 +29,7 @@
           </h1>
         </div>
 
-        <div class="col-lg-3 pr-lg-0 font-weight-bold members-block d-none d-lg-block">
+        <div class="col-lg-3 pr-lg-0 font-weight-bold members-block d-none d-lg-block" v-if="!prevRound">
           <div class="row">
             <div class="col-6 text-right pt-2 text-grey fz-14 text-uppercase">Members</div>
             <div class="col-6 pl-0 pt-1 fz-18">{{ room.members }}</div>
@@ -47,7 +46,58 @@
         </div>
       </div>
 
-      <div class="row">
+
+      <div class="row" v-if="prevRound">
+        <div class="col-6 offset-4">
+          <div class="text-center mb-4">
+            <p class="bold-500 fz-18 mb-0">
+              <span v-if="prevRound.isWinner">Congratulations. Your prediction won</span>
+              <span v-if="!prevRound.isWinner">Sorry, your prediction didn’t win</span>
+            </p>
+            <b class="bold-700 fz-36" v-if="prevRound.isWinner">1.20 ETH</b>
+          </div>
+
+          <div class="row bold-500">
+            <div class="col-6 text-grey fz-14 text-uppercase pt-2">
+              <span class="ml-3">Current Price</span>
+            </div>
+            <div class="col-6 fz-20 text-right">
+              <span class="mr-3">$ {{ prevRound.winPrediction }}</span>
+            </div>
+          </div>
+          <div class="row bold-500 mt-3">
+            <div class="col-6 text-grey fz-14 text-uppercase pt-2">
+              <span class="ml-3">Your Prediction</span>
+            </div>
+            <div class="col-6 fz-20 text-right">
+              <span class="mr-3">$ {{ prevRound.roundPrice }}</span>
+            </div>
+          </div>
+
+          <h4 class="mt-5 fz-20 bold-700 pl-3">List of winners</h4>
+          <table class="table">
+            <thead>
+            <tr class="text-uppercase">
+              <th class="pl-3">Account</th>
+              <th>Prediction</th>
+              <th>Time stamp</th>
+            </tr>
+            </thead>
+            <tr v-for="winner of prevRound.winners" :key="winner.id">
+              <td class="pl-3">{{ winner.user }}</td>
+              <td class="bold-500">$ {{ winner.prediction_usd }}</td>
+              <td>{{ winner.created_at }}</td>
+            </tr>
+          </table>
+
+          <div class="text-center">
+            <button class="btn btn-secondary rounded-pill try-again bold-500" @click="tryAgain()">Try Again</button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row" v-if="!prevRound">
         <div class="col-lg-5 offset-lg-4 prediction-form">
 
           <div class="row" v-if="room.price_usd">
@@ -115,7 +165,7 @@ export default {
   data() {
     return {
       room: {},
-      mobileChatOpened: false,
+      mobileChatOpened: window.innerWidth > 992,
       userPrice: ''
     }
   },
@@ -124,17 +174,17 @@ export default {
       return this.$store.state.user.predictions.filter(prediction => {
         return this.room.id === prediction.room_id;
       });
+    },
+    prevRound() {
+      return this.$store.state.prevRoundResults[this.room.id];
     }
   },
   created() {
-    // previous results
-
-
     this.$store.state.rooms.forEach(room => {
       if (room.symbol === this.$route.params.id) {
         this.room = room;
       }
-    })
+    });
   },
   metaInfo() {
     const meta = this.$t('meta.home');
@@ -168,6 +218,11 @@ export default {
     },
     openChat() {
       this.mobileChatOpened = true;
+    },
+    tryAgain() {
+      this.$store.dispatch('tryAgainPrediction', this.room.id);
+      // this.prevResults = this.$store.state.prevRoundResults[this.room.id];
+
     },
     predictionFormat(price) {
       return new Intl.NumberFormat('en-US', {
@@ -296,15 +351,13 @@ h2 {
   display: none;
 }
 
-@media all and (max-width: 992px) {
-  .chat-block {
-    //position: absolute;
-    //display: none;
+.try-again {
+  width: 220px;
+  padding: 10px;
+  background-color: rgba(58, 58, 58, .7);
+}
 
-    //&.visible {
-    //  display: block;
-    //}
-  }
+@media all and (max-width: 992px) {
   .chat-button {
     display: block;
     position: fixed;
