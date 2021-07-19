@@ -12,18 +12,23 @@
 
           <div class="col-lg">
             <div class="row">
-              <div class="col-12 col-lg-6 order-1 order-lg-0">
+              <div class="col-12 pt-2 mt-1 col-lg-6 order-1 order-lg-0">
                 <b-link to="/my-predictions"
-                        class="text-left pt-2 mt-1 font-weight-bold pr-0 pl-1 no-decoration"
+                        class="text-left font-weight-bold pr-0 pl-1 no-decoration prediction-info"
                         v-if="$store.state.user.predictions.length">
-                  <span class="mr-3 fz-14 text-grey">YOUR PREDICTION</span>
-                  <b class="fz-18 text-black">{{ $store.state.user.predictions.length }}</b>
+                  <span class="mr-lg-3 mr-2 ml-lg-0 ml-2 text-grey">YOUR PREDICTION</span>
+                  <b class="text-black">{{ $store.state.user.predictions.length }}</b>
                 </b-link>
                 <b-link to="/my-predictions"
-                        class="text-left pt-2 mt-1 font-weight-bold pl-4 pr-0 no-decoration"
+                        class="text-left font-weight-bold pl-4 pr-0 no-decoration prediction-info"
                         v-if="$store.state.user.predictions.length">
-                  <span class="mr-3 ml-2 fz-14 text-grey">YOUR ENTRY</span>
-                  <b class="fz-18 text-black">{{ predictionsEntry }} ETH</b>
+                  <span class="mr-lg-3 mr-2 ml-2 text-grey">YOUR ENTRY</span>
+                  <i class="avg-price">
+                    ≈$ {{ parseFloat(predictionsEntry * $store.state.priceETH).toFixed(2) }}
+                  </i>
+                  <b class="text-black">
+                    {{ predictionsEntry }} ETH
+                  </b>
                 </b-link>
               </div>
 

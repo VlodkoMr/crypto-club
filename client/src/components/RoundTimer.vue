@@ -57,6 +57,12 @@ export default {
   .make-prediction-time {
     margin: auto;
     text-align: center;
+    font-size: 40px;
+    line-height: 24px;
+  }
+
+  .make-prediction {
+    font-size: 16px;
   }
 }
 </style>

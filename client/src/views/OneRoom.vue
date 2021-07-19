@@ -14,11 +14,11 @@
               </b-button>
             </div>
 
-            <div class="col text-center text-lg-left">
+            <div class="col text-center text-lg-left pr-lg-2 pl-0 pl-lg-2">
               <RoundTimer compact-view="true"/>
             </div>
 
-            <div class="col-3 d-lg-none"></div>
+            <div class="col-lg-3 col-2"></div>
           </div>
         </div>
 
@@ -51,7 +51,7 @@
         <div class="col-lg-5 offset-lg-4 prediction-form">
 
           <div class="row" v-if="room.price_usd">
-            <div class="col-6 text-right text-uppercase fz-14 font-weight-bold pr-0 text-grey">
+            <div class="col-5 col-lg-6 text-right text-uppercase fz-14 font-weight-bold pr-0 text-grey">
               <div class="mt-4 pt-2 pl-3">Current Price</div>
             </div>
             <div class="col-6 mt-2 pt-1 position-relative">
@@ -72,13 +72,13 @@
               </div>
             </div>
             <div class="col-lg pr-lg-0 ml-lg-3 pt-4 pb-5 mb-4 mt-2" v-if="!$store.getters.canAddPrediction">
-              <p class="fz-18 bold-700 text-center pl-5">Acceptance of predictions is completed.</p>
+              <p class="fz-18 bold-700 text-center pl-lg-5">Acceptance of predictions is completed.</p>
             </div>
           </div>
 
-          <div v-if="$store.state.user.predictions">
+          <div v-if="$store.state.user.predictions" class="mb-5 mb-lg-3">
             <div class="row prediction-row mb-3" v-for="(prediction, index) in filterPredictions" :key="prediction.id">
-              <div class="col-5 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
+              <div class="col-lg-5 col-4 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
               <div class="col fz-16">{{ index + 1 }}) {{ predictionFormat(prediction.prediction_usd) }}</div>
               <div class="col-3 fz-16 pr-0 text-lg-right">{{ weiToETH(prediction.entry_wei) }} ETH</div>
             </div>
@@ -88,13 +88,17 @@
       </div>
     </div>
 
-    <div class="col-lg-4 chat-block mt-5 mt-lg-0 text-center">
+    <div class="col-lg-4 chat-block text-center" v-if="mobileChatOpened">
       <div class="text-center">
-        <div class="ml-lg-5 ml-2">
+        <div class="ml-lg-5 ml-lg-2">
           <ChatApp/>
         </div>
       </div>
     </div>
+
+    <img src="../assets/img/chat-button.svg" class="chat-button" alt=""
+         v-if="!mobileChatOpened"
+         @click="openChat()">
 
   </div>
 </template>
@@ -111,6 +115,7 @@ export default {
   data() {
     return {
       room: {},
+      mobileChatOpened: false,
       userPrice: ''
     }
   },
@@ -160,6 +165,9 @@ export default {
         }
       }
       return '0.01';
+    },
+    openChat() {
+      this.mobileChatOpened = true;
     },
     predictionFormat(price) {
       return new Intl.NumberFormat('en-US', {
@@ -268,7 +276,7 @@ h2 {
 
 .avg-price {
   position: absolute;
-  top: -12px;
+  top: -14px;
   left: 23%;
   font-size: 12px;
   color: #464646;
@@ -284,9 +292,30 @@ h2 {
   margin-left: 30%;
 }
 
+.chat-button {
+  display: none;
+}
+
 @media all and (max-width: 992px) {
+  .chat-block {
+    //position: absolute;
+    //display: none;
+
+    //&.visible {
+    //  display: block;
+    //}
+  }
+  .chat-button {
+    display: block;
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 99;
+  }
   h1 {
     margin-top: 32px;
+    display: inline-block;
+    line-height: 72px;
   }
   h2 {
     font-size: 32px;
@@ -296,8 +325,8 @@ h2 {
     left: 18%;
   }
   .token-img {
-    top: 0;
-    right: 23%;
+    top: -20px;
+    right: -14px;
   }
   .price {
     font-weight: 500;

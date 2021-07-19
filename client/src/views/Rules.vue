@@ -4,7 +4,7 @@
 
       <div class="col-lg-3 col-12">
         <div class="row">
-          <div class="col-lg-4 col-2">
+          <div class="col-lg-4 col-3">
             <b-button pill to="/" class="btn-sm btn-secondary-fill mt-4 d-none d-lg-block home-btn-width">
               Home
             </b-button>
@@ -13,7 +13,7 @@
             </b-button>
           </div>
 
-          <div class="col col-lg-8 text-center text-lg-left timer-block">
+          <div class="col col-lg-8 text-center text-lg-left timer-block pl-0 pl-lg-2">
             <RoundTimer compact-view="true"/>
           </div>
 

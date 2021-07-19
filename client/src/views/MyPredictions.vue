@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-lg-3 col-12">
       <div class="row">
-        <div class="col-lg-4 col-2">
+        <div class="col-lg-4 col-3">
           <b-button pill to="/" class="btn-sm btn-secondary-fill mt-4 d-none d-lg-block home-btn-width">
             Home
           </b-button>
@@ -11,7 +11,7 @@
           </b-button>
         </div>
 
-        <div class="col col-lg-8 text-center text-lg-left timer-block">
+        <div class="col col-lg-8 text-center text-lg-left timer-block pl-0 pl-lg-2">
           <RoundTimer compact-view="true"/>
         </div>
 
@@ -22,7 +22,7 @@
     <div class="col-lg-6">
       <h1 class="text-center mb-4 font-weight-bold mt-lg-0 mt-4">My Predictions</h1>
       <div class="row">
-        <div class="col-lg-4 col-6 text-right">
+        <div class="col-lg-4 col-6 pl-4 text-right">
 
           <b-dropdown id="dropdown-room" class="min-dropdown" v-model="selectedRoom" variant="white" :text="selectedRoomTitle">
             <b-dropdown-item @click="selectedRoom=''">All Rooms</b-dropdown-item>
@@ -44,7 +44,7 @@
           ></b-form-datepicker>
         </div>
 
-        <div class="col-lg-4 col-6">
+        <div class="col-lg-4 col-6 pr-4">
           <b-dropdown id="dropdown-time" class="min-dropdown" v-model="selectedRound" variant="white" :text="selectedRoundTitle">
             <b-dropdown-item @click="selectedRound = ''" v-if="rounds.length">
               All Rounds
@@ -268,6 +268,12 @@ thead {
   &:hover {
     transition: all ease .3s;
     background-color: rgba(0, 0, 0, 0.05);
+  }
+}
+
+@media all and (max-width: 992px) {
+  .min-dropdown {
+    min-width: 148px;
   }
 }
 

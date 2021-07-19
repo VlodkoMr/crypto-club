@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-3">
+  <div class="ml-lg-3">
     <h3>{{ room.title }}</h3>
     <div class="row">
       <img :src="getTokenImg(room.symbol)" alt="" class="token-img">
@@ -13,7 +13,7 @@
       <div class="col-6 pt-1 text-right font-weight-bold fz-24 pr-4 pl-0">{{ room.members }}</div>
     </div>
     <div class="text-center">
-      <b-button class="btn-pad mt-5" pill :to="{name:'OneRoom', 'params':{'id': room.symbol}}">Join</b-button>
+      <b-button class="btn-pad mt-4" pill :to="{name:'OneRoom', 'params':{'id': room.symbol}}">Join</b-button>
     </div>
   </div>
 </template>

@@ -2,13 +2,13 @@
   <div>
     <div class="row">
       <div class="col-lg-4">
-        <h1 class="pt-4 ml-lg-4 pl-lg-2 text-center text-lg-left">Prediction Rooms</h1>
+        <h1 class="pt-lg-4 ml-lg-4 pl-lg-2 text-center text-lg-left">Prediction Rooms</h1>
       </div>
       <div class="col-lg-4 text-center">
         <RoundTimer/>
       </div>
     </div>
-    <div class="d-lg-none d-block splide-block">
+    <div class="d-lg-none d-block splide-block pl-2 pr-2 ml-2">
       <splide :options="options">
         <splide-slide v-for="room in $store.state.rooms" :key="room.id">
           <RoomPreview :room="room"/>
