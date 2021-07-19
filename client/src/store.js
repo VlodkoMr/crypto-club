@@ -1,7 +1,7 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
-import {maxDigits} from './blockchain/metamask';
+import {formatPrice, formatTime} from './blockchain/metamask';
 import {io} from 'socket.io-client';
 
 Vue.use(Vuex);
@@ -79,11 +79,7 @@ export default new Vuex.Store({
             state.user.predictions = [];
         },
         updateTokenPrice(state, value) {
-            state.rooms[value.index].price_usd = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                minimumFractionDigits: maxDigits(value.price)
-            }).format(value.price);
+            state.rooms[value.index].price_usd = formatPrice(value.price);
             state.rooms[value.index].price_raw = value.price;
         },
         updateTokenPct(state, value) {
@@ -93,7 +89,13 @@ export default new Vuex.Store({
             state.round.secondsToEnd = value;
         },
         loadChatMessages(state, value) {
-            state.chat.messages.unshift(...value.messages)
+            let messages = [];
+            value.messages.forEach(message => {
+                message.timestamp = formatTime(message.timestamp);
+                messages.push(message);
+            });
+
+            state.chat.messages.unshift(...messages)
             state.chat.participants.unshift(...value.participants)
             state.chat.myself = value.myself;
         },
@@ -109,7 +111,12 @@ export default new Vuex.Store({
             if (value.participantId !== state.chat.myself.id) {
                 value.myself = false;
             }
+
+            value.timestamp = new Date();
             state.chat.messages.push(value);
+        },
+        SOCKET_CHAT_MESSAGE_USER(state, value) {
+            state.chat.participants.push(value);
         }
     },
     actions: {
@@ -234,12 +241,14 @@ export default new Vuex.Store({
             });
         },
         loadPreviousRoundResults({dispatch, commit, state}) {
-            axios.get(`${process.env.VUE_APP_API_URL}/api/prev-round-results?acc=${state.user.address}`)
-                .then(response => {
-                    if (response.data) {
-                        commit('prevRoundResults', response.data);
-                    }
-                });
+            if (state.user.address) {
+                axios.get(`${process.env.VUE_APP_API_URL}/api/prev-round-results?acc=${state.user.address}`)
+                    .then(response => {
+                        if (response.data) {
+                            commit('prevRoundResults', response.data);
+                        }
+                    });
+            }
         },
         tryAgainPrediction({dispatch, commit, state}, roomId) {
             axios.post(`${process.env.VUE_APP_API_URL}/api/try-again-prediction`, {
@@ -250,6 +259,6 @@ export default new Vuex.Store({
             });
 
             commit('clearPrevRoomResults', roomId);
-        }
+        },
     }
 })

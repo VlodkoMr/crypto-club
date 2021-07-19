@@ -69,8 +69,8 @@
             <tbody>
             <tr class="prediction-row" v-for="prediction in filterRoomAndRound()" :key="prediction.id">
               <td class="bold-500 pl-4">{{ roomTitle(prediction.room_id) }}</td>
-              <td>{{ dateFormat(prediction.created_at) }}</td>
-              <td class="bold-500">{{ formatUds(prediction.prediction_usd) }}</td>
+              <td>{{ formatDate(prediction.created_at) }}</td>
+              <td class="bold-500">{{ formatPrice(prediction.prediction_usd) }}</td>
               <td class="bold-500">{{ status(prediction.is_winner) }}</td>
             </tr>
             </tbody>
@@ -89,7 +89,7 @@
 <script>
 import RoundTimer from '@/components/RoundTimer';
 import _ from 'lodash';
-import {maxDigits} from '@/blockchain/metamask';
+import {formatPrice, formatDate} from '@/blockchain/metamask';
 
 export default {
   name: 'MyPredictions',
@@ -117,6 +117,12 @@ export default {
         return round.start_time + ' - ' + round.end_time;
       }
       return this.rounds.length ? 'All Rounds' : 'No Rounds';
+    },
+    formatPrice() {
+      return formatPrice;
+    },
+    formatDate() {
+      return formatDate;
     }
   },
   created() {
@@ -149,18 +155,11 @@ export default {
       const room = _.find(this.$store.state.rooms, ['id', id]);
       return room.title;
     },
-    dateFormat(date) {
-      return new Intl.DateTimeFormat('en-US', {
-        day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false
-      }).format(Date.parse(date));
-    },
-    formatUds(amount) {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: maxDigits(amount)
-      }).format(amount);
-    },
+    // dateFormat(date) {
+    //   return new Intl.DateTimeFormat('en-US', {
+    //     day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false
+    //   }).format(Date.parse(date));
+    // },
     status(isWinner) {
       if (isWinner) {
         return 'Win';

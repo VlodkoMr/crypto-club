@@ -1,9 +1,10 @@
 const {Server} = require('socket.io');
-const {currentRound, roundPredictions, weiToETH, findUser} = require('./functions');
+const {
+    currentRound, roundPredictions, weiToETH, findUser, serializeMessage, serializeChatUser
+} = require('./functions');
 const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const _ = require('lodash');
-const {serializeMessage} = require('./functions');
 
 const initSocketServer = (server) => {
     const io = new Server(server, {
@@ -53,7 +54,10 @@ const initSocketServer = (server) => {
 
             const newMessage = serializeMessage(lastMessage, user)
 
-            io.emit('CHAT_MESSAGE', newMessage);
+            io.emit('CHAT_MESSAGE_USER', serializeChatUser(user));
+            setTimeout(() => {
+                io.emit('CHAT_MESSAGE', newMessage);
+            }, 300);
         });
 
         socket.on('disconnect', function () {

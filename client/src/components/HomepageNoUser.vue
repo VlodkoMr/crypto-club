@@ -21,7 +21,7 @@
         <img :src="getTokenImg(oneRoom.symbol)" alt="" class="token-img">
         <img src="../assets/img/dot.svg" alt="" class="dots-img">
         <h2>{{ oneRoom.title }}</h2>
-        <span class="price-block">
+        <span class="price-block" v-if="oneRoom.price_usd">
           {{ oneRoom.price_usd }}
           <span class="price-now-text d-inline-block">PRICE NOW</span>
           <span class="price-now red" v-if="oneRoom.price_pct">{{ oneRoom.price_pct }}%</span>
@@ -46,6 +46,8 @@
 </template>
 
 <script>
+import {formatTime} from '@/blockchain/metamask';
+
 export default {
   name: 'HomepageNoUser',
   computed: {
@@ -53,7 +55,7 @@ export default {
       return this.$store.state.rooms[this.currentRoomIndex];
     },
     endRound() {
-      return this.$store.state.round.endTime;
+      return formatTime(this.$store.state.round.endTime).slice(0, 5);
     }
   },
   data() {

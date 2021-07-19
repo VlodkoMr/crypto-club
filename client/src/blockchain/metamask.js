@@ -75,10 +75,33 @@ const maxDigits = (price) => {
     return digits;
 }
 
+const formatDate = (date) => {
+    return new Intl.DateTimeFormat('en-US', {
+        day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false
+    }).format(Date.parse(date));
+}
+
+const formatTime = (date) => {
+    return new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false
+    }).format(Date.parse(date));
+}
+
+const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: maxDigits(price)
+    }).format(price)
+}
+
 export {
     isMetamaskInstalled,
     getUserAddress,
     loadUserNetworkId,
     loadContract,
-    maxDigits
+    maxDigits,
+    formatPrice,
+    formatDate,
+    formatTime
 }

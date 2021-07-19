@@ -19,7 +19,7 @@ router.get('/round', async (req, res) => {
     const round = await currentRound();
     if (round) {
         const secondsToEnd = parseInt((round.end_time - new Date()) / 1000);
-        const endTime = round.end_time.toISOString().slice(11, 16);
+        const endTime = round.end_time;
         const predictions = await roundPredictions(round);
         const rooms = await prisma.rooms.findMany();
 
@@ -115,7 +115,7 @@ router.get('/prev-round-results', async (req, res) => {
 router.post('/chat-messages', async (req, res) => {
     const user = await findUser({id: req.body.user});
     let where = {};
-    let take = -10;
+    let take = -20;
 
     if (req.body.lastId) {
         where = {
@@ -162,7 +162,8 @@ router.post('/try-again-prediction', async (req, res) => {
     const result = await prisma.user_predictions.updateMany({
         where: {
             user_id: user.id,
-            room_id: req.body.room
+            room_id: req.body.room,
+            is_new: true
         },
         data: {
             is_new: false

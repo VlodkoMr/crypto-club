@@ -62,7 +62,7 @@
               <span class="ml-3">Current Price</span>
             </div>
             <div class="col-6 fz-20 text-right">
-              <span class="mr-3">$ {{ prevRound.winPrediction }}</span>
+              <span class="mr-3">{{ formatPrice(prevRound.winPrediction) }}</span>
             </div>
           </div>
           <div class="row bold-500 mt-3">
@@ -70,7 +70,7 @@
               <span class="ml-3">Your Prediction</span>
             </div>
             <div class="col-6 fz-20 text-right">
-              <span class="mr-3">$ {{ prevRound.roundPrice }}</span>
+              <span class="mr-3">{{ formatPrice(prevRound.roundPrice) }}</span>
             </div>
           </div>
 
@@ -85,8 +85,8 @@
             </thead>
             <tr v-for="winner of prevRound.winners" :key="winner.id">
               <td class="pl-3">{{ winner.user }}</td>
-              <td class="bold-500">$ {{ winner.prediction_usd }}</td>
-              <td>{{ winner.created_at }}</td>
+              <td class="bold-500">{{ formatPrice(winner.prediction_usd) }}</td>
+              <td>{{ formatTime(winner.created_at) }}</td>
             </tr>
           </table>
 
@@ -95,7 +95,6 @@
           </div>
         </div>
       </div>
-
 
       <div class="row" v-if="!prevRound">
         <div class="col-lg-5 offset-lg-4 prediction-form">
@@ -129,7 +128,7 @@
           <div v-if="$store.state.user.predictions" class="mb-5 mb-lg-3">
             <div class="row prediction-row mb-3" v-for="(prediction, index) in filterPredictions" :key="prediction.id">
               <div class="col-lg-5 col-4 text-grey fz-14 font-weight-bold text-right prediction-text">PREDICTION</div>
-              <div class="col fz-16">{{ index + 1 }}) {{ predictionFormat(prediction.prediction_usd) }}</div>
+              <div class="col fz-16">{{ index + 1 }}) {{ formatPrice(prediction.prediction_usd) }}</div>
               <div class="col-3 fz-16 pr-0 text-lg-right">{{ weiToETH(prediction.entry_wei) }} ETH</div>
             </div>
           </div>
@@ -157,7 +156,7 @@
 <script>
 import RoundTimer from '@/components/RoundTimer';
 import web3 from 'web3';
-import {maxDigits} from '@/blockchain/metamask';
+import {formatPrice, formatDate, formatTime} from '@/blockchain/metamask';
 import ChatApp from '@/components/ChatApp';
 
 export default {
@@ -174,6 +173,15 @@ export default {
       return this.$store.state.user.predictions.filter(prediction => {
         return this.room.id === prediction.room_id;
       });
+    },
+    formatPrice() {
+      return formatPrice;
+    },
+    formatDate() {
+      return formatDate;
+    },
+    formatTime() {
+      return formatTime;
     },
     prevRound() {
       return this.$store.state.prevRoundResults[this.room.id];
@@ -221,15 +229,6 @@ export default {
     },
     tryAgain() {
       this.$store.dispatch('tryAgainPrediction', this.room.id);
-      // this.prevResults = this.$store.state.prevRoundResults[this.room.id];
-
-    },
-    predictionFormat(price) {
-      return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        minimumFractionDigits: maxDigits(price)
-      }).format(price);
     },
     getTokenImg(symbol) {
       const images = require.context('../assets/img/tokens/', false, /\-black.svg$/);

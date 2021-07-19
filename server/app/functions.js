@@ -249,13 +249,7 @@ const serializeMessage = (message, user) => {
         content: message.text,
         myself: myself,
         participantId: CryptoJS.MD5(message.user_id).toString(),
-        timestamp: {
-            year: message.created_at.getFullYear(),
-            month: message.created_at.getMonth() + 1,
-            day: message.created_at.getDate(),
-            hour: message.created_at.getHours(),
-            minute: message.created_at.getMinutes()
-        },
+        timestamp: message.created_at,
         type: 'text'
     }
 }
