@@ -101,6 +101,8 @@ export default {
       selectedDate: '',
       selectedRoom: '',
       selectedRound: '',
+      currentRoundId: null,
+      roundInterval: null
     }
   },
   computed: {
@@ -129,6 +131,7 @@ export default {
     const now = new Date()
     this.maxDate.setMonth(now.getMonth())
     this.maxDate.setDate(now.getDate());
+    this.currentRoundId = this.$store.state.round.id;
 
     let month = now.getMonth() + 1;
     let day = now.getDate();
@@ -141,6 +144,16 @@ export default {
 
     this.selectedDate = `${now.getFullYear()}-${month}-${day}`;
     this.loadDateRounds();
+
+    this.roundInterval = setInterval(() => {
+      if (this.currentRoundId != this.$store.state.round.id) {
+        this.currentRoundId = this.$store.state.round.id;
+        this.loadDateRounds();
+      }
+    }, 1000);
+  },
+  destroyed() {
+    clearInterval(this.roundInterval);
   },
   methods: {
     loadDateRounds() {
@@ -155,11 +168,6 @@ export default {
       const room = _.find(this.$store.state.rooms, ['id', id]);
       return room.title;
     },
-    // dateFormat(date) {
-    //   return new Intl.DateTimeFormat('en-US', {
-    //     day: 'numeric', month: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false
-    //   }).format(Date.parse(date));
-    // },
     status(isWinner) {
       if (isWinner) {
         return 'Win';

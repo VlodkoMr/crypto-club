@@ -66,7 +66,7 @@ const findUser = async (where) => {
 }
 
 const weiToETH = (value, digits = 4) => {
-    return parseFloat(web3.utils.fromWei('' + value)).toFixed(digits);
+    return parseFloat(web3.utils.fromWei(value.toString())).toFixed(digits);
 }
 
 const addressShort = (address) => {

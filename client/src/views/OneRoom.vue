@@ -54,7 +54,7 @@
               <span v-if="prevRound.isWinner">Congratulations. Your prediction won</span>
               <span v-if="!prevRound.isWinner">Sorry, your prediction didn’t win</span>
             </p>
-            <b class="bold-700 fz-36" v-if="prevRound.isWinner">1.20 ETH</b>
+            <b class="bold-700 fz-36" v-if="prevRound.isWinner">{{ prevRound.winAmount }} ETH</b>
           </div>
 
           <div class="row bold-500">
@@ -62,15 +62,17 @@
               <span class="ml-3">Current Price</span>
             </div>
             <div class="col-6 fz-20 text-right">
-              <span class="mr-3">{{ formatPrice(prevRound.winPrediction) }}</span>
+              <span class="mr-3">{{ formatPrice(prevRound.roundPrice) }}</span>
             </div>
           </div>
           <div class="row bold-500 mt-3">
             <div class="col-6 text-grey fz-14 text-uppercase pt-2">
-              <span class="ml-3">Your Prediction</span>
+              <span class="ml-3">Your Prediction{{ prevRound.userPredictions.length > 1 ? 's' : '' }}</span>
             </div>
             <div class="col-6 fz-20 text-right">
-              <span class="mr-3">{{ formatPrice(prevRound.roundPrice) }}</span>
+              <div class="mr-3" v-for="price of prevRound.userPredictions" :key="price">
+                {{ formatPrice(price) }}
+              </div>
             </div>
           </div>
 

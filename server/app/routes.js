@@ -78,14 +78,16 @@ router.get('/prev-round-results', async (req, res) => {
 
             if (prevResultList.length) {
                 let isWinner = false;
-                let winPrediction = 0;
+                let userPredictions = [];
+                let winAmount = BigInt(0);
                 prevResultList.forEach(prevResult => {
                     if (!isWinner) {
                         isWinner = prevResult.is_winner;
-                        if (isWinner) {
-                            winPrediction = prevResult.prediction_usd;
-                        }
                     }
+                    if (isWinner) {
+                        winAmount += BigInt(prevResult.win_amount_wei);
+                    }
+                    userPredictions.push(prevResult.prediction_usd);
                 });
 
                 const winners = await getRoundWinners(room.id, prevResultList[0].round_id)
@@ -100,9 +102,10 @@ router.get('/prev-round-results', async (req, res) => {
                     prevRoundResults[room.id] = {
                         roomId: room.id,
                         isWinner: isWinner,
-                        winPrediction: winPrediction,
+                        userPredictions: userPredictions,
                         roundPrice: roundResult.price_usd,
-                        winners: winners
+                        winners: winners,
+                        winAmount: web3.utils.fromWei(winAmount.toString())
                     }
                 }
             }
