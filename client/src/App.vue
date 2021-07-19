@@ -69,12 +69,14 @@
     </footer>
 
     <WalletConnectPopup @click="connectMetamask"/>
+    <BalanceErrorPopup/>
   </div>
 </template>
 
 <script>
 import UserAccount from '@/components/UserAccount.vue'
 import WalletConnectPopup from '@/components/WalletConnectPopup.vue'
+import BalanceErrorPopup from '@/components/BalanceErrorPopup.vue'
 import {isMetamaskInstalled, getUserAddress} from './blockchain/metamask'
 import web3 from 'web3';
 
@@ -112,7 +114,8 @@ export default {
   },
   components: {
     UserAccount,
-    WalletConnectPopup
+    WalletConnectPopup,
+    BalanceErrorPopup
   }
 }
 </script>

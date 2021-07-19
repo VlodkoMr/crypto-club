@@ -253,7 +253,7 @@ export default {
           });
           this.userPrice = '';
         } else {
-          alert('Not enough balance for prediction.')
+          this.$bvModal.show('modal-balance-error')
         }
       }
     },
