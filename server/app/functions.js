@@ -79,7 +79,7 @@ const binancePricePromise = (token) => {
     let tokenFull = `${token.toUpperCase()}USDT`;
     return new Promise((resolve, reject) => {
         binance.prices(tokenFull, (error, ticker) => {
-            if (ticker[tokenFull]) {
+            if (ticker && ticker[tokenFull]) {
                 resolve(ticker[tokenFull].slice(0, -2));
             } else {
                 reject(error);
@@ -231,7 +231,9 @@ const finishRound = async () => {
                 }
             }
         }
-    );
+    ).catch(e => {
+        console.error('Promise error: ', e);
+    });
 
     startNewRound().catch(e => {
         // console.log(e);

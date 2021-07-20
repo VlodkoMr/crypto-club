@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import NotFound from '@/views/NotFound';
+import Wallet from '@/views/Wallet';
 
 Vue.use(VueRouter)
 
@@ -37,6 +38,8 @@ const routes = [
         component: () => import('../views/MyPredictions.vue')
     },
     {path: '/404', component: NotFound},
+    {path: '/wallet', component: Wallet},
+    {path: '/wallet/*', component: Wallet},
     {path: '*', redirect: '/404'},
 ]
 

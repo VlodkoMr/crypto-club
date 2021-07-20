@@ -95,6 +95,11 @@ const formatPrice = (price) => {
     }).format(price)
 }
 
+const deposit = (amount) => {
+    // window.web3.
+    console.log(amount);
+}
+
 export {
     isMetamaskInstalled,
     getUserAddress,
@@ -103,5 +108,6 @@ export {
     maxDigits,
     formatPrice,
     formatDate,
-    formatTime
+    formatTime,
+    deposit
 }

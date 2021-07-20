@@ -15,7 +15,7 @@
         </splide-slide>
       </splide>
     </div>
-    <div class="row d-none d-lg-flex">
+    <div class="row d-none d-lg-flex rooms-list">
       <div class="col-lg-3 room-block" v-for="room in $store.state.rooms" :key="room.id">
         <RoomPreview :room="room"/>
       </div>
@@ -60,6 +60,10 @@ h2 {
 
 .room-block {
   padding: 0 3rem !important;
+}
+
+.rooms-list {
+  margin-top: 4vh;
 }
 
 @media all and (max-width: 992px) {

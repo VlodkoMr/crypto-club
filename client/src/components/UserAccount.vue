@@ -32,6 +32,15 @@
           </div>
         </div>
 
+        <div class="text-center mb-4 pb-3 clearfix">
+          <b-button pill variant="secondary" to="/wallet" class="bold-500 pl-4 pr-4 float-left" @click="closePopup">
+            My Wallet
+          </b-button>
+          <b-button pill variant="secondary" to="/wallet/withdrawal" class="bold-500 pl-4 pr-4 float-right" @click="closePopup">
+            Payout
+          </b-button>
+        </div>
+
         <div class="row mb-2">
           <div class="col-6 fz-14 text-uppercase text-grey font-weight-bold">Pending Prize</div>
           <div class="col-6 text-right position-relative">
@@ -42,11 +51,8 @@
           </div>
         </div>
 
-        <div class="text-center mb-4 pb-3">
-          <b-button pill variant="secondary" class="btn-pad bold-500">Payout</b-button>
-        </div>
-
         <hr class="mt-1 mb-1">
+
         <b-button variant="white border-none pl-0 d-block text-left bold-500" to="/my-predictions" @click="closePopup">
           My Predictions
         </b-button>
