@@ -1,49 +1,31 @@
-import detectEthereumProvider from '@metamask/detect-provider';
+import Web3 from 'web3';
 
-
-function handleAccountChanged(accounts) {
-    console.log('handleAccountChanged');
-    window.location.reload();
-}
-
-function handleChainChanged(chainId) {
-    console.log('handleChainChanged');
-    window.location.reload();
-}
+const BankContract = require('./build/contracts/Bank.json');
 
 const isMetamaskInstalled = async () => {
-    const provider = await detectEthereumProvider();
-    if (provider) {
-        if (provider !== window.ethereum) {
-            console.error('Do you have multiple wallets installed?');
-            window.ethereum = provider;
-        }
-
-        ethereum.on('accountsChanged', handleAccountChanged);
-        ethereum.on('chainChanged', handleChainChanged);
-
+    if (window.ethereum) {
+        window.web3 = new Web3(window.ethereum);
+        await window.ethereum.enable();
+        return true;
+    } else if (window.web3) {
+        window.web3 = new Web3(window.web3.currentProvider);
         return true;
     } else {
         console.log('Please install MetaMask!');
-        return false;
+        // alert('Please install MetaMask!');
     }
+
+    window.ethereum.on('accountsChanged', () => {
+        window.location.reload();
+    });
+    window.ethereum.on('networkChanged', () => {
+        window.location.reload();
+    });
 }
 
 const getUserAddress = async () => {
-    return ethereum
-        .request({method: 'eth_requestAccounts'})
-        .then((accounts) => {
-            return accounts[0];
-        })
-        .catch((err) => {
-            if (err.code === 4001) {
-                // EIP-1193 userRejectedRequest error
-                // If this happens, the user rejected the connection request.
-                console.log('Please connect to MetaMask.');
-            } else {
-                console.error(err);
-            }
-        });
+    const accounts = await window.web3.eth.getAccounts();
+    return accounts[0];
 }
 
 const loadUserNetworkId = async () => {
@@ -95,8 +77,9 @@ const formatPrice = (price) => {
     }).format(price)
 }
 
-const deposit = (amount) => {
-    // window.web3.
+const deposit = async (amount) => {
+    const depositContract = await loadContract(BankContract);
+    console.log(depositContract)
     console.log(amount);
 }
 
