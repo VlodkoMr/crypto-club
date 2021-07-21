@@ -4,24 +4,28 @@ import {Common} from 'web3-core';
 const BankContract = require('./build/contracts/Bank.json');
 
 const isMetamaskInstalled = async () => {
+    let isEnabled = false;
     if (window.ethereum) {
         window.web3 = new Web3(window.ethereum);
         await window.ethereum.enable();
-        return true;
+        isEnabled = true;
     } else if (window.web3) {
         window.web3 = new Web3(window.web3.currentProvider);
-        return true;
+        isEnabled = true;
     } else {
         console.log('Please install MetaMask!');
-        // alert('Please install MetaMask!');
     }
 
-    window.ethereum.on('accountsChanged', () => {
+    window.ethereum.on('accountsChanged', (accounts) => {
+        console.log('accountsChanged', accounts);
         window.location.reload();
     });
-    window.ethereum.on('networkChanged', () => {
+    window.ethereum.on('networkChanged', (networkId) => {
+        console.log('networkId', networkId);
         window.location.reload();
     });
+
+    return isEnabled;
 }
 
 const getUserAddress = async () => {
@@ -96,7 +100,6 @@ const deposit = async (amount) => {
                 console.log(transactionHash);
             }
         });
-        console.log('+')
     }
 
 
