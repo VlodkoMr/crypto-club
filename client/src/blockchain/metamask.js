@@ -1,4 +1,5 @@
 import Web3 from 'web3';
+import {Common} from 'web3-core';
 
 const BankContract = require('./build/contracts/Bank.json');
 
@@ -74,13 +75,31 @@ const formatPrice = (price) => {
         style: 'currency',
         currency: 'USD',
         minimumFractionDigits: maxDigits(price)
-    }).format(price)
+    }).format(price);
 }
 
 const deposit = async (amount) => {
-    const depositContract = await loadContract(BankContract);
-    console.log(depositContract)
-    console.log(amount);
+    const networkId = await loadUserNetworkId();
+    const tokenData = BankContract.networks[networkId];
+    if (tokenData) {
+        const userAddress = await getUserAddress();
+
+        web3.eth.sendTransaction({
+            from: userAddress,
+            to: tokenData.address,
+            value: web3.utils.toWei(amount.toString()),
+            chain: networkId
+        }, function (err, transactionHash) {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(transactionHash);
+            }
+        });
+        console.log('+')
+    }
+
+
 }
 
 export {

@@ -30,3 +30,7 @@ docker-compose exec server npx prisma db seed --preview-feature
 
 #### Introspect DB
 docker-compose exec server npx prisma introspect --force
+
+#### Truffle
+cd client/src/blockchain
+truffle
