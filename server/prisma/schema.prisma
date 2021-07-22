@@ -51,8 +51,8 @@ model user_payments {
   user_id    String
   type       String   @db.VarChar(255)
   amount_wei String   @db.VarChar(30)
-  status     Boolean
-  hash       String?  @db.VarChar(255)
+  status     Int
+  hash       String?  @db.VarChar(255) @unique
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   users      users    @relation(fields: [user_id], references: [id])

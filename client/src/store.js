@@ -1,16 +1,26 @@
 import Vuex from 'vuex';
 import Vue from 'vue';
 import axios from 'axios';
+
+const CryptoJS = require("crypto-js");
 import {formatPrice, formatTime} from './blockchain/metamask';
 import {io} from 'socket.io-client';
 
+const socket = io(process.env.VUE_APP_API_URL);
 Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
         priceETH: 0,
         isReady: false,
-        isMetamaskInstalled: false,
+        isMetamaskEnabled: false,
+        topMessage: {
+            isVisible: false,
+            type: '',
+            textBefore: '',
+            hash: '',
+            textAfter: '',
+        },
         user: {
             id: '',
             address: null,
@@ -37,13 +47,16 @@ export default new Vuex.Store({
             const end = state.user.address.slice(-4);
             return `${begin}...${end}`;
         },
+        addressHash(state) {
+            return CryptoJS.MD5(state.user.address).toString();
+        },
         canAddPrediction(state) {
             return state.round.secondsToEnd > parseInt(process.env.VUE_APP_LOCK_ROUND_MINUTES) * 60;
         }
     },
     mutations: {
-        isMetamaskInstalled(state, value) {
-            state.isMetamaskInstalled = value;
+        isMetamaskEnabled(state, value) {
+            state.isMetamaskEnabled = value;
         },
         user(state, value) {
             state.user = value
@@ -88,6 +101,22 @@ export default new Vuex.Store({
         secondsToEnd(state, value) {
             state.round.secondsToEnd = value;
         },
+        closeTopMessage(state) {
+            state.topMessage.isVisible = false;
+        },
+        openTopMessage(state, value) {
+            state.topMessage.isVisible = true;
+            state.topMessage.type = value.type;
+            state.topMessage.textBefore = value.textBefore;
+            state.topMessage.hash = value.hash;
+            state.topMessage.textAfter = value.textAfter;
+
+            setTimeout(() => {
+                if (state.topMessage.hash === value.hash && state.topMessage.type === value.type) {
+                    state.topMessage.isVisible = false;
+                }
+            }, 20000);
+        },
         loadChatMessages(state, value) {
             let messages = [];
             value.messages.forEach(message => {
@@ -117,7 +146,7 @@ export default new Vuex.Store({
         },
         SOCKET_CHAT_MESSAGE_USER(state, value) {
             state.chat.participants.push(value);
-        }
+        },
     },
     actions: {
         loadRound({dispatch, commit, state}) {
@@ -155,22 +184,22 @@ export default new Vuex.Store({
             state.rooms.forEach((room, roomIndex) => {
                 // Current price
                 const ticker = room.symbol + 'usdt';
-                const socket = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1m`);
-                socket.onmessage = function (event) {
+                const socketBinance = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1m`);
+                socketBinance.onmessage = function (event) {
                     const data = JSON.parse(event.data);
                     commit('updateTokenPrice', {index: roomIndex, price: data.k.c})
                     if (room.symbol === 'eth') {
                         commit('updateETHPrice', data.k.c)
                     }
                 };
-                socket.onclose = function (event) {
+                socketBinance.onclose = function (event) {
                     console.log('[close] Соединение прервано')
                     document.location.reload();
                 };
 
                 // Price change pct
-                const socketDay = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1d`);
-                socketDay.onmessage = (event) => {
+                const socketBinanceDay = new WebSocket(`wss://stream.binance.com:9443/ws/${ticker}@kline_1d`);
+                socketBinanceDay.onmessage = (event) => {
                     const data = JSON.parse(event.data);
                     const prevPrice = data.k.o;
                     const currentPrice = state.rooms[roomIndex].price_raw;
@@ -221,7 +250,6 @@ export default new Vuex.Store({
             });
         },
         newChatMessage({dispatch, commit, state}, message) {
-            const socket = io(process.env.VUE_APP_API_URL);
             socket.emit("NEW_CHAT_MESSAGE", {
                 'content': message.content,
                 'user': state.user.id
@@ -259,6 +287,38 @@ export default new Vuex.Store({
             });
 
             commit('clearPrevRoomResults', roomId);
+        },
+        newDepositTransaction({dispatch, commit, state}, transaction) {
+            socket.emit("NEW_DEPOSIT_TRANSACTION", {
+                'hash': transaction.hash,
+                'amount': transaction.amount,
+                'user': state.user.id
+            });
+
+            commit('openTopMessage', {
+                type: 'pending',
+                textBefore: 'PENDING TRANSACTION',
+                textAfter: 'is being mined...',
+                hash: transaction.hash,
+            });
+        },
+        newWithdrawTransaction({dispatch, commit, state}, transaction) {
+            socket.emit("NEW_WITHDRAW_TRANSACTION", {
+                'user': state.user.id,
+                'amount': transaction.amount,
+                'address': transaction.address
+            });
+        },
+        loadBalanceHistory({dispatch, commit, state}) {
+            return axios.get(`${process.env.VUE_APP_API_URL}/api/balance-history`, {
+                'user': state.user.id,
+            });
+        },
+        socket_transactionChange({dispatch, commit, state, getters}, value) {
+            if (value.addressHash === getters.addressHash) {
+                commit('openTopMessage', value);
+                dispatch('loadUser');
+            }
         },
     }
 })

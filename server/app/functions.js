@@ -4,6 +4,7 @@ const {PrismaClient} = require('@prisma/client');
 const prisma = new PrismaClient();
 const web3 = require('web3');
 const CryptoJS = require("crypto-js");
+const https = require('https');
 
 function removeArrItem(arr) {
     let what, a = arguments,
@@ -118,7 +119,6 @@ const startNewRound = async () => {
         }
     }, 1000);
 }
-
 
 const finishRound = async () => {
     // console.log('Finish round...');
@@ -240,6 +240,25 @@ const finishRound = async () => {
     });
 }
 
+const gasPricePromise = new Promise((resolve, reject) => {
+    https.get('https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=' + process.env.ETHERSCAN_API_KEY, (resp) => {
+        let data = '';
+        resp.on('data', (chunk) => {
+            data += chunk;
+        });
+
+        resp.on('end', () => {
+            let result = JSON.parse(data);
+            let fastest = parseInt(result.result.FastGasPrice);
+            fastest = parseInt(fastest * 1.1) * 1000;
+            resolve(fastest);
+        });
+    }).on("error", (err) => {
+        reject("Error: " + err.message);
+        console.log("Error: " + err.message);
+    });
+});
+
 const serializeMessage = (message, user) => {
     let myself = false;
     if (user && message.user_id === user.id) {
@@ -294,6 +313,34 @@ const getRoundWinners = async (roomId, roundId) => {
     return winnersList;
 }
 
+// const subscribedEvents = {};
+// const subscribeLogEvent = (contract, eventName, callback) => {
+//     const eventJsonInterface = window.web3.utils._.find(
+//         contract._jsonInterface,
+//         o => o.name === eventName && o.type === 'event',
+//     )
+//
+//     subscribedEvents[eventName] = window.web3.eth.subscribe('logs', {
+//         address: contract.options.address,
+//         topics: [eventJsonInterface.signature]
+//     }, (error, result) => {
+//         if (!error) {
+//             const eventObj = window.web3.eth.abi.decodeLog(
+//                 eventJsonInterface.inputs,
+//                 result.data,
+//                 result.topics.slice(1)
+//             )
+//             console.log(`New ${eventName}!`, eventObj);
+//
+//             if (callback) {
+//                 callback(eventObj);
+//             }
+//         }
+//     })
+//
+//     console.log(`subscribed to event '${eventName}' of contract '${contract.options.address}' `)
+// }
+
 module.exports = {
     startNewRound,
     roundPredictions,
@@ -303,5 +350,7 @@ module.exports = {
     serializeMessage,
     serializeChatUser,
     addressShort,
-    getRoundWinners
+    getRoundWinners,
+    gasPricePromise,
+    // subscribeLogEvent
 }

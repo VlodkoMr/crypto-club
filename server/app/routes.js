@@ -62,50 +62,52 @@ router.get('/prev-round-results', async (req, res) => {
     const rooms = await prisma.rooms.findMany();
     let user = await findUser({address: req.query.acc});
 
-    for (let index in rooms) {
-        if (rooms.hasOwnProperty(index)) {
-            const room = rooms[index];
-            prevRoundResults[room.id] = null;
+    if (user) {
+        for (let index in rooms) {
+            if (rooms.hasOwnProperty(index)) {
+                const room = rooms[index];
+                prevRoundResults[room.id] = null;
 
-            // Is prev rounds results
-            const prevResultList = await prisma.user_predictions.findMany({
-                where: {
-                    room_id: room.id,
-                    is_new: true,
-                    user_id: user.id
-                }
-            });
-
-            if (prevResultList.length) {
-                let isWinner = false;
-                let userPredictions = [];
-                let winAmount = BigInt(0);
-                prevResultList.forEach(prevResult => {
-                    if (!isWinner) {
-                        isWinner = prevResult.is_winner;
-                    }
-                    if (isWinner) {
-                        winAmount += BigInt(prevResult.win_amount_wei);
-                    }
-                    userPredictions.push(prevResult.prediction_usd);
-                });
-
-                const winners = await getRoundWinners(room.id, prevResultList[0].round_id)
-                const roundResult = await prisma.round_results.findFirst({
+                // Is prev rounds results
+                const prevResultList = await prisma.user_predictions.findMany({
                     where: {
-                        round_id: prevResultList[0].round_id,
-                        room_id: room.id
+                        room_id: room.id,
+                        is_new: true,
+                        user_id: user.id
                     }
                 });
 
-                if (roundResult) {
-                    prevRoundResults[room.id] = {
-                        roomId: room.id,
-                        isWinner: isWinner,
-                        userPredictions: userPredictions,
-                        roundPrice: roundResult.price_usd,
-                        winners: winners,
-                        winAmount: web3.utils.fromWei(winAmount.toString())
+                if (prevResultList.length) {
+                    let isWinner = false;
+                    let userPredictions = [];
+                    let winAmount = BigInt(0);
+                    prevResultList.forEach(prevResult => {
+                        if (!isWinner) {
+                            isWinner = prevResult.is_winner;
+                        }
+                        if (isWinner) {
+                            winAmount += BigInt(prevResult.win_amount_wei);
+                        }
+                        userPredictions.push(prevResult.prediction_usd);
+                    });
+
+                    const winners = await getRoundWinners(room.id, prevResultList[0].round_id)
+                    const roundResult = await prisma.round_results.findFirst({
+                        where: {
+                            round_id: prevResultList[0].round_id,
+                            room_id: room.id
+                        }
+                    });
+
+                    if (roundResult) {
+                        prevRoundResults[room.id] = {
+                            roomId: room.id,
+                            isWinner: isWinner,
+                            userPredictions: userPredictions,
+                            roundPrice: roundResult.price_usd,
+                            winners: winners,
+                            winAmount: web3.utils.fromWei(winAmount.toString())
+                        }
                     }
                 }
             }
@@ -247,6 +249,20 @@ router.get('/user', async (req, res) => {
         id: user.id
     });
 })
+
+router.get('/balance-history', async (req, res) => {
+    let results = [];
+    let user = await findUser({address: req.query.acc});
+    if (user) {
+        results = await prisma.user_payments.findMany({
+            where: {
+                user_id: user.id
+            }
+        });
+    }
+
+    res.send(results);
+});
 
 router.get('/date-rounds', async (req, res) => {
     const date = req.query.date;

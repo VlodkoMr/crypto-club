@@ -12,11 +12,11 @@
         <b-link to="/privacy" class="text-grey" @click="$bvModal.hide('modal-connect-wallet')">Privacy Policy.</b-link>
       </p>
 
-      <b-button block size="lg" variant="white" :disabled="!$store.state.isMetamaskInstalled"
+      <b-button block size="lg" variant="white" :disabled="!isMetamaskInstalled"
                 class="btn-outline-secondary text-left wallet-connect"
                 @click="connectMetamask()">
         MetaMask
-        <span v-if="!$store.state.isMetamaskInstalled">(not installed)</span>
+        <span v-if="!isMetamaskInstalled">(not installed)</span>
         <img src="../assets/img/metamask.svg" alt="">
       </b-button>
 
@@ -35,8 +35,16 @@
 </template>
 
 <script>
+import {isMetamaskInstalled} from '@/blockchain/metamask';
+
+
 export default {
   name: 'WalletConnectPopup',
+  computed: {
+    isMetamaskInstalled() {
+      return isMetamaskInstalled();
+    }
+  },
   methods: {
     connectMetamask() {
       return this.$parent.connectMetamask()

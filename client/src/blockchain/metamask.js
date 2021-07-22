@@ -1,31 +1,36 @@
 import Web3 from 'web3';
-import {Common} from 'web3-core';
 
-const BankContract = require('./build/contracts/Bank.json');
+const isMetamaskEnabled = () => {
+    return new Promise(async (resolve, reject) => {
+        let isEnabled = false;
+        if (window.ethereum) {
+            window.web3 = new Web3(window.ethereum);
+            await window.ethereum.enable();
+            isEnabled = true;
+        } else if (window.web3) {
+            window.web3 = new Web3(window.web3.currentProvider);
+            isEnabled = true;
+        }
 
-const isMetamaskInstalled = async () => {
-    let isEnabled = false;
-    if (window.ethereum) {
-        window.web3 = new Web3(window.ethereum);
-        await window.ethereum.enable();
-        isEnabled = true;
-    } else if (window.web3) {
-        window.web3 = new Web3(window.web3.currentProvider);
-        isEnabled = true;
-    } else {
-        console.log('Please install MetaMask!');
-    }
+        if (isEnabled) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                console.log('accountsChanged', accounts);
+                window.location.reload();
+            });
+            window.ethereum.on('networkChanged', (networkId) => {
+                console.log('networkId', networkId);
+                window.location.reload();
+            });
 
-    window.ethereum.on('accountsChanged', (accounts) => {
-        console.log('accountsChanged', accounts);
-        window.location.reload();
+            resolve();
+        } else {
+            reject('Please install MetaMask!');
+        }
     });
-    window.ethereum.on('networkChanged', (networkId) => {
-        console.log('networkId', networkId);
-        window.location.reload();
-    });
+}
 
-    return isEnabled;
+const isMetamaskInstalled = () => {
+    return window.ethereum || window.web3;
 }
 
 const getUserAddress = async () => {
@@ -82,31 +87,34 @@ const formatPrice = (price) => {
     }).format(price);
 }
 
-const deposit = async (amount) => {
-    const networkId = await loadUserNetworkId();
-    const tokenData = BankContract.networks[networkId];
-    if (tokenData) {
-        const userAddress = await getUserAddress();
+const depositPromise = (amount) => {
+    return new Promise(async (resolve, reject) => {
+        const networkId = await loadUserNetworkId();
+        if (networkId !== process.env.VUE_APP_NETWORK_ID) {
+            const userAddress = await getUserAddress();
 
-        web3.eth.sendTransaction({
-            from: userAddress,
-            to: tokenData.address,
-            value: web3.utils.toWei(amount.toString()),
-            chain: networkId
-        }, function (err, transactionHash) {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log(transactionHash);
-            }
-        });
-    }
-
-
+            web3.eth.sendTransaction({
+                from: userAddress,
+                // to: process.env.VUE_APP_ADMIN_ADDRESS,
+                to: '0xCDcD72D2f6B94ACA363a8bda1D045F17F31157Ea',
+                value: web3.utils.toWei(amount.toString()),
+                chain: networkId
+            }, function (err, transactionHash) {
+                if (err) {
+                    reject(err.message);
+                } else {
+                    resolve(transactionHash);
+                }
+            });
+        } else {
+            reject('Wrong Network selected!');
+        }
+    })
 }
 
 export {
     isMetamaskInstalled,
+    isMetamaskEnabled,
     getUserAddress,
     loadUserNetworkId,
     loadContract,
@@ -114,5 +122,5 @@ export {
     formatPrice,
     formatDate,
     formatTime,
-    deposit
+    depositPromise,
 }

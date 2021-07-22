@@ -70,14 +70,16 @@
 
     <WalletConnectPopup @click="connectMetamask"/>
     <BalanceErrorPopup/>
+    <TopMessagePopup/>
   </div>
 </template>
 
 <script>
-import UserAccount from '@/components/UserAccount.vue'
-import WalletConnectPopup from '@/components/WalletConnectPopup.vue'
-import BalanceErrorPopup from '@/components/BalanceErrorPopup.vue'
-import {isMetamaskInstalled, getUserAddress} from './blockchain/metamask'
+import UserAccount from '@/components/UserAccount'
+import WalletConnectPopup from '@/components/WalletConnectPopup'
+import BalanceErrorPopup from '@/components/BalanceErrorPopup'
+import TopMessagePopup from '@/components/TopMessagePopup';
+import {isMetamaskEnabled, getUserAddress} from './blockchain/metamask'
 import web3 from 'web3';
 
 export default {
@@ -105,17 +107,25 @@ export default {
   },
   methods: {
     async connectMetamask() {
-      this.$store.commit('isMetamaskInstalled', await isMetamaskInstalled());
-      if (this.$store.state.isMetamaskInstalled) {
-        this.$store.commit('address', await getUserAddress());
-        this.$bvModal.hide('modal-connect-wallet');
-      }
+      await isMetamaskEnabled().then(async () => {
+        this.$store.commit('isMetamaskEnabled', true);
+        if (this.$store.state.isMetamaskEnabled) {
+          this.$store.commit('address', await getUserAddress());
+          this.$bvModal.hide('modal-connect-wallet');
+        }
+      }).catch(err => {
+        this.$store.commit('openTopMessage', {
+          type: 'error',
+          textBefore: err
+        });
+      });
     }
   },
   components: {
     UserAccount,
     WalletConnectPopup,
-    BalanceErrorPopup
+    BalanceErrorPopup,
+    TopMessagePopup
   }
 }
 </script>

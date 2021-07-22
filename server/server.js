@@ -2,6 +2,7 @@ const cors = require('cors');
 const express = require('express');
 const bodyParser = require('body-parser');
 const http = require('http');
+
 const {initSocketServer} = require('./app/socket');
 const {startNewRound} = require('./app/functions');
 

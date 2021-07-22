@@ -28,32 +28,60 @@
               <div class="col-9 form-group">
                 <label class="pl-3 text-uppercase fz-14 bold-500 mb-1">Amount (ETH)</label>
                 <input type="number" step="0.01" min="0" placeholder="0,00"
-                       class="form-control mb-2 fz-16 input-border form-control-lg"/>
+                       class="form-control mb-2 fz-16 input-border form-control-lg" v-model="depositAmount"/>
                 <button class="btn btn-secondary rounded-pill btn-secondary-fill mt-2 payment-button" @click="deposit()">
                   Generate payment
                 </button>
               </div>
             </div>
           </b-tab>
+
           <b-tab title="Withdrawal" :active="activeTab==='withdrawal'">
             <div class="row">
               <div class="col-9">
                 <div class="form-group">
                   <label class="pl-3 text-uppercase fz-14 bold-500 mb-1">To address</label>
-                  <input type="text" class="form-control mb-2 fz-16 input-border form-control-lg"/>
+                  <input type="text" class="form-control mb-2 fz-16 input-border form-control-lg" v-model="withdrawAddress"/>
                 </div>
                 <div class="form-group position-relative">
                   <label class="pl-3 text-uppercase fz-14 bold-500 mb-1">Amount (ETH)</label>
-                  <input type="number" step="0.01" min="0" placeholder="0,00"
+                  <input type="number" step="0.01" min="0" placeholder="0,00" v-model="withdrawAmount"
                          class="form-control mb-2 fz-16 input-border form-control-lg input-small-amount no-arrows"/>
                   <button class="btn btn-link text-black p-1 max-btn" @click="maxBalance()">MAX</button>
                 </div>
-                <button class="btn btn-secondary rounded-pill btn-secondary-fill mt-2 payment-button">Withdraw</button>
+                <button class="btn btn-secondary rounded-pill btn-secondary-fill mt-2 payment-button" @click="withdraw()">
+                  Withdraw
+                </button>
               </div>
             </div>
           </b-tab>
-          <b-tab title="History" :active="activeTab==='history'">
-            <p>History</p>
+
+          <b-tab title="History" :active="activeTab==='history'" @click="loadHistory()">
+
+            <div v-if="!balanceHistory.length">
+              *No transactions
+            </div>
+            <div v-if="balanceHistory.length">
+              <table>
+                <thead>
+                <tr>
+                  <th>DATE</th>
+                  <th>TYPE</th>
+                  <th>AMOUNT</th>
+                  <th>TRANSACTION</th>
+                  <th>STATUS</th>
+                </tr>
+                </thead>
+                <tr v-for="tx of balanceHistory" :key="tx.id">
+                  <td>{{ tx.created_at }}</td>
+                  <td>{{ tx.type }}</td>
+                  <td>{{ tx.amount_wei }}</td>
+                  <td>{{ tx.hash }}</td>
+                  <td>{{ tx.status }}</td>
+                </tr>
+              </table>
+            </div>
+
           </b-tab>
         </b-tabs>
       </div>
@@ -63,17 +91,18 @@
 
 
 <script>
-import {deposit} from '@/blockchain/metamask';
+import {depositPromise} from '@/blockchain/metamask';
 
 export default {
   name: 'Wallet',
   data() {
     return {
-      activeTab: ''
+      activeTab: '',
+      depositAmount: '',
+      withdrawAmount: '',
+      withdrawAddress: this.$store.state.user.address,
+      balanceHistory: []
     }
-  },
-  updated() {
-    console.log(this.$route)
   },
   metaInfo() {
     const meta = this.$t('meta.home');
@@ -89,12 +118,43 @@ export default {
       ]
     }
   },
-  methods: {
-    deposit() {
-      deposit(1)
-    },
-    maxBalance(){
 
+  methods: {
+    loadHistory() {
+      this.$store.dispatch('loadBalanceHistory').then(result => {
+        this.balanceHistory = result.data;
+      });
+    },
+    deposit() {
+      if (this.depositAmount > 0) {
+        depositPromise(this.depositAmount).then(result => {
+          this.$store.dispatch('newDepositTransaction', {
+            hash: result,
+            amount: this.depositAmount
+          });
+          this.depositAmount = '';
+        }).catch(err => {
+          this.$store.commit('openTopMessage', {
+            type: 'error',
+            textBefore: err
+          })
+        })
+      }
+    },
+    maxBalance() {
+      this.withdrawAmount = this.$store.state.user.balance;
+    },
+    withdraw() {
+      if (this.withdrawAmount > 0 && this.withdrawAddress) {
+        this.$store.dispatch('newWithdrawTransaction', {
+          amount: this.withdrawAmount,
+          address: this.withdrawAddress
+        });
+
+        setTimeout(() => {
+          this.withdrawAmount = 0;
+        }, 1000);
+      }
     }
   },
   components: {}
