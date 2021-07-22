@@ -87,6 +87,12 @@ const formatPrice = (price) => {
     }).format(price);
 }
 
+const txShort = (hash) => {
+    const begin = hash.slice(0, 6);
+    const end = hash.slice(-6);
+    return `${begin}...${end}`;
+}
+
 const depositPromise = (amount) => {
     return new Promise(async (resolve, reject) => {
         const networkId = await loadUserNetworkId();
@@ -123,4 +129,5 @@ export {
     formatDate,
     formatTime,
     depositPromise,
+    txShort,
 }

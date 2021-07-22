@@ -62,7 +62,7 @@
               *No transactions
             </div>
             <div v-if="balanceHistory.length">
-              <table>
+              <table class="table">
                 <thead>
                 <tr>
                   <th>DATE</th>
@@ -73,11 +73,11 @@
                 </tr>
                 </thead>
                 <tr v-for="tx of balanceHistory" :key="tx.id">
-                  <td>{{ tx.created_at }}</td>
-                  <td>{{ tx.type }}</td>
-                  <td>{{ tx.amount_wei }}</td>
-                  <td>{{ tx.hash }}</td>
-                  <td>{{ tx.status }}</td>
+                  <td>{{ formatDate(tx.created_at) }}</td>
+                  <td class="text-capitalize">{{ tx.type }}</td>
+                  <td class="bold-500">{{ web3.utils.fromWei(tx.amount_wei) }} ETH</td>
+                  <td><a :href="txUrl(tx.hash)" target="_blank">{{ txShort(tx.hash) }}</a></td>
+                  <td class="bold-500">{{ statusText(tx.status) }}</td>
                 </tr>
               </table>
             </div>
@@ -91,7 +91,8 @@
 
 
 <script>
-import {depositPromise} from '@/blockchain/metamask';
+import {formatDate} from '@/blockchain/metamask';
+import {depositPromise, txShort} from '@/blockchain/metamask';
 
 export default {
   name: 'Wallet',
@@ -103,6 +104,17 @@ export default {
       withdrawAddress: this.$store.state.user.address,
       balanceHistory: []
     }
+  },
+  computed: {
+    web3() {
+      return window.web3;
+    },
+    formatDate() {
+      return formatDate;
+    },
+    txShort() {
+      return txShort;
+    },
   },
   metaInfo() {
     const meta = this.$t('meta.home');
@@ -125,6 +137,18 @@ export default {
         this.balanceHistory = result.data;
       });
     },
+    txUrl(hash) {
+      return process.env.VUE_APP_ETHERSCAN_URL + hash;
+    },
+    statusText(status) {
+      if (status === 2) {
+        return 'Failed';
+      } else if (status === 1) {
+        return 'Success';
+      } else {
+        return 'In Progress';
+      }
+    },
     deposit() {
       if (this.depositAmount > 0) {
         depositPromise(this.depositAmount).then(result => {
@@ -142,7 +166,9 @@ export default {
       }
     },
     maxBalance() {
-      this.withdrawAmount = this.$store.state.user.balance;
+      if (this.$store.state.user.balance > 0) {
+        this.withdrawAmount = this.$store.state.user.balance;
+      }
     },
     withdraw() {
       if (this.withdrawAmount > 0 && this.withdrawAddress) {
@@ -204,6 +230,12 @@ export default {
 .input-small-amount {
   width: 270px !important;
   max-width: 100%;
+}
+
+.table {
+  a {
+    color: #000;
+  }
 }
 
 </style>
