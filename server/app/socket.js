@@ -180,8 +180,9 @@ const initSocketServer = (server) => {
                             });
                         }
 
-                    }).catch(async () => {
+                    }).catch(async (err) => {
                         clearInterval(transactionCheckInterval);
+                        console.log(err);
 
                         await prisma.user_payments.update({
                             where: {hash: data.hash},
@@ -193,7 +194,7 @@ const initSocketServer = (server) => {
                             type: 'error',
                             textBefore: 'YOUR TRANSACTION',
                             hash: data.hash,
-                            textAfter: 'is failed'
+                            textAfter: 'is failed' + err.message
                         });
                     });
                 }, 10000);
