@@ -82,7 +82,14 @@ const initSocketServer = (server) => {
                         value: withdrawAmount.toString()
                     }
 
-                    // console.log('txObject', txObject);
+                    io.emit('transactionChange', {
+                        addressHash: userAddressHash,
+                        type: 'pending',
+                        textBefore: 'YOUR WITHDRAW',
+                        textAfter: 'in progress...'
+                    });
+
+                    console.log('txObject', txObject);
 
                     web3.eth.accounts.signTransaction(txObject, process.env.ADMIN_PRIVATE_KEY).then(signed => {
                         io.emit('transactionChange', {
