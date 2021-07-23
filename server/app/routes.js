@@ -193,7 +193,7 @@ router.post('/add-prediction', async (req, res) => {
         }
     });
 
-    if (user.balance_wei <= entry) {
+    if (user.balance_wei < entry) {
         res.send({status: 'error', 'text': 'Not enough balance for prediction'});
     } else if (secondsToEnd < process.env.LOCK_ROUND_MINUTES * 60) {
         res.send({status: 'error', 'text': 'It is too late for prediction, please wait next round.'});
