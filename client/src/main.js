@@ -18,7 +18,7 @@ Vue.use(VueSplide);
 Vue.component('b-modal', BModal);
 Vue.component('b-form-datepicker', BFormDatepicker);
 
-const socket = io(process.env.VUE_APP_API_URL);
+const socket = io(process.env.VUE_APP_SOCKET_URL);
 Vue.use(VueSocketIOExt, socket, {store});
 
 new Vue({
