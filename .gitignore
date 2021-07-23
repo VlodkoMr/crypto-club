@@ -69,3 +69,4 @@ $RECYCLE.BIN/
 *.lnk
 .idea/
 .data/
+.env
