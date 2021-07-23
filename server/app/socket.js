@@ -206,7 +206,7 @@ const initSocketServer = (server) => {
                             type: 'error',
                             textBefore: 'YOUR TRANSACTION',
                             hash: data.hash,
-                            textAfter: 'is failed' + err.message
+                            textAfter: 'is failed - ' + err.message
                         });
                     });
                 }, 10000);
