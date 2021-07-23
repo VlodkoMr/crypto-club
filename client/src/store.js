@@ -312,9 +312,7 @@ export default new Vuex.Store({
             });
         },
         loadBalanceHistory({dispatch, commit, state}) {
-            return axios.get(`${process.env.VUE_APP_API_URL}/api/balance-history`, {
-                'user': state.user.id,
-            });
+            return axios.get(`${process.env.VUE_APP_API_URL}/api/balance-history?acc=${state.user.address}`);
         },
         socket_transactionChange({dispatch, commit, state, getters}, value) {
             if (value.addressHash === getters.addressHash) {
