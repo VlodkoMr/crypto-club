@@ -101,8 +101,8 @@ const depositPromise = (amount) => {
 
             web3.eth.sendTransaction({
                 from: userAddress,
-                // to: process.env.VUE_APP_ADMIN_ADDRESS,
-                to: '0xCDcD72D2f6B94ACA363a8bda1D045F17F31157Ea',
+                to: process.env.VUE_APP_ADMIN_ADDRESS,
+                // to: '0x814f601e5FB128B80C72c95848D474d2048A503a',
                 value: web3.utils.toWei(amount.toString()),
                 chain: networkId
             }, function (err, transactionHash) {

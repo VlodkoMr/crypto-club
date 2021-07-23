@@ -149,43 +149,54 @@ const initSocketServer = (server) => {
                     }
                 });
 
-                web3.eth.getTransactionReceipt(data.hash).then(async (result) => {
-                    await prisma.user_payments.update({
-                        where: {hash: data.hash},
-                        data: {status: 1}
-                    });
+                const transactionCheckInterval = setInterval(async () => {
+                    web3.eth.getTransactionReceipt(data.hash).then(async (result) => {
+                        const currentBlock = await web3.eth.getBlockNumber();
+                        const confirmations = currentBlock - result.blockNumber;
 
-                    let newUserBalance = BigInt(user.balance_wei);
-                    newUserBalance += BigInt(amountWei);
+                        if (result.blockNumber && confirmations > 2) {
+                            clearInterval(transactionCheckInterval);
+                            await prisma.user_payments.update({
+                                where: {hash: data.hash},
+                                data: {status: 1}
+                            });
 
-                    await prisma.users.update({
-                        where: {id: user.id},
-                        data: {
-                            balance_wei: newUserBalance.toString()
+                            let newUserBalance = BigInt(user.balance_wei);
+                            newUserBalance += BigInt(amountWei);
+
+                            await prisma.users.update({
+                                where: {id: user.id},
+                                data: {
+                                    balance_wei: newUserBalance.toString()
+                                }
+                            });
+
+                            io.emit('transactionChange', {
+                                addressHash: userAddressHash,
+                                type: 'success',
+                                textBefore: 'YOUR TRANSACTION',
+                                hash: data.hash,
+                                textAfter: 'is completed'
+                            });
                         }
-                    });
 
-                    io.emit('transactionChange', {
-                        addressHash: userAddressHash,
-                        type: 'success',
-                        textBefore: 'YOUR TRANSACTION',
-                        hash: data.hash,
-                        textAfter: 'is completed'
-                    });
-                }).catch(async () => {
-                    await prisma.user_payments.update({
-                        where: {hash: data.hash},
-                        data: {status: 2}
-                    });
+                    }).catch(async () => {
+                        clearInterval(transactionCheckInterval);
 
-                    io.emit('transactionChange', {
-                        addressHash: userAddressHash,
-                        type: 'error',
-                        textBefore: 'YOUR TRANSACTION',
-                        hash: data.hash,
-                        textAfter: 'is failed'
+                        await prisma.user_payments.update({
+                            where: {hash: data.hash},
+                            data: {status: 2}
+                        });
+
+                        io.emit('transactionChange', {
+                            addressHash: userAddressHash,
+                            type: 'error',
+                            textBefore: 'YOUR TRANSACTION',
+                            hash: data.hash,
+                            textAfter: 'is failed'
+                        });
                     });
-                });
+                }, 10000);
             }
         });
 
