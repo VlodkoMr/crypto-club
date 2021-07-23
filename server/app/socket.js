@@ -151,35 +151,36 @@ const initSocketServer = (server) => {
 
                 const transactionCheckInterval = setInterval(async () => {
                     web3.eth.getTransactionReceipt(data.hash).then(async (result) => {
-                        const currentBlock = await web3.eth.getBlockNumber();
-                        const confirmations = currentBlock - result.blockNumber;
+                        if (result && result.blockNumber) {
+                            const currentBlock = await web3.eth.getBlockNumber();
+                            const confirmations = currentBlock - result.blockNumber;
 
-                        if (result.blockNumber && confirmations > 2) {
-                            clearInterval(transactionCheckInterval);
-                            await prisma.user_payments.update({
-                                where: {hash: data.hash},
-                                data: {status: 1}
-                            });
+                            if (confirmations > 2) {
+                                clearInterval(transactionCheckInterval);
+                                await prisma.user_payments.update({
+                                    where: {hash: data.hash},
+                                    data: {status: 1}
+                                });
 
-                            let newUserBalance = BigInt(user.balance_wei);
-                            newUserBalance += BigInt(amountWei);
+                                let newUserBalance = BigInt(user.balance_wei);
+                                newUserBalance += BigInt(amountWei);
 
-                            await prisma.users.update({
-                                where: {id: user.id},
-                                data: {
-                                    balance_wei: newUserBalance.toString()
-                                }
-                            });
+                                await prisma.users.update({
+                                    where: {id: user.id},
+                                    data: {
+                                        balance_wei: newUserBalance.toString()
+                                    }
+                                });
 
-                            io.emit('transactionChange', {
-                                addressHash: userAddressHash,
-                                type: 'success',
-                                textBefore: 'YOUR TRANSACTION',
-                                hash: data.hash,
-                                textAfter: 'is completed'
-                            });
+                                io.emit('transactionChange', {
+                                    addressHash: userAddressHash,
+                                    type: 'success',
+                                    textBefore: 'YOUR TRANSACTION',
+                                    hash: data.hash,
+                                    textAfter: 'is completed'
+                                });
+                            }
                         }
-
                     }).catch(async (err) => {
                         clearInterval(transactionCheckInterval);
                         console.log(err);
