@@ -111,11 +111,13 @@ export default new Vuex.Store({
             state.topMessage.hash = value.hash;
             state.topMessage.textAfter = value.textAfter;
 
-            setTimeout(() => {
-                if (state.topMessage.hash === value.hash && state.topMessage.type === value.type) {
-                    state.topMessage.isVisible = false;
-                }
-            }, 20000);
+            if (value.type !== 'pending') {
+                setTimeout(() => {
+                    if (state.topMessage.hash === value.hash && state.topMessage.type === value.type) {
+                        state.topMessage.isVisible = false;
+                    }
+                }, 20000);
+            }
         },
         loadChatMessages(state, value) {
             let messages = [];
