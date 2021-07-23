@@ -241,7 +241,7 @@ const finishRound = async () => {
 }
 
 const gasPricePromise = new Promise((resolve, reject) => {
-    https.get('https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=' + process.env.ETHERSCAN_API_KEY, (resp) => {
+    https.get(process.env.ETHERSCAN_API_URL + '/api?module=proxy&action=eth_gasPrice&apikey=' + process.env.ETHERSCAN_API_KEY, (resp) => {
         let data = '';
         resp.on('data', (chunk) => {
             data += chunk;
@@ -249,9 +249,8 @@ const gasPricePromise = new Promise((resolve, reject) => {
 
         resp.on('end', () => {
             let result = JSON.parse(data);
-            let fastest = parseInt(result.result.FastGasPrice);
-            fastest = parseInt(fastest * 1.1) * 1000;
-            resolve(fastest);
+            let gasPrice = parseInt(result.result);
+            resolve(gasPrice);
         });
     }).on("error", (err) => {
         reject("Error: " + err.message);
