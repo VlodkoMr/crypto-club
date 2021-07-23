@@ -93,7 +93,7 @@ const initSocketServer = (server) => {
                         textAfter: 'in progress...'
                     });
 
-                    // console.log('txObject', txObject);
+                    console.log('txObject', txObject);
 
                     web3.eth.accounts.signTransaction(txObject, process.env.ADMIN_PRIVATE_KEY).then(signed => {
                         io.emit('transactionChange', {
