@@ -72,7 +72,11 @@ const initSocketServer = (server) => {
 
                 if (balance - withdrawAmount >= 0) {
                     const nonce = await web3.eth.getTransactionCount(process.env.ADMIN_ADDRESS);
-                    const gasPrice = await gasPricePromise;
+                    const lastTransaction = await web3.eth.getBlock("latest", false);
+                    let gasPrice = lastTransaction.gasUsed * 1.2;
+                    if (gasPrice > lastTransaction.gasLimit) {
+                        gasPrice = lastTransaction.gasLimit;
+                    }
 
                     const txObject = {
                         from: process.env.ADMIN_ADDRESS,
@@ -101,7 +105,7 @@ const initSocketServer = (server) => {
                         });
 
                         web3.eth.sendSignedTransaction(signed.rawTransaction).on('receipt', async (result) => {
-                            // console.log('Result', result);
+                            console.log('Result', result);
 
                             await prisma.users.update({
                                 where: {id: user.id},
