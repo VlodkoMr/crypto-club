@@ -162,6 +162,8 @@ const initSocketServer = (server) => {
 
                 const transactionCheckInterval = setInterval(async () => {
                     web3.eth.getTransactionReceipt(data.hash).then(async (result) => {
+                        console.log('getTransactionReceipt', data.hash);
+
                         if (result && result.blockNumber) {
                             const currentBlock = await web3.eth.getBlockNumber();
                             const confirmations = currentBlock - result.blockNumber;
