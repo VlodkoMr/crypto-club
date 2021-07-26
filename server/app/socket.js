@@ -9,11 +9,46 @@ const {
 } = require('./functions');
 const prisma = new PrismaClient();
 
-const provider = new Web3.providers.WebsocketProvider(process.env.WEB_SOCKET_URL);
-provider.on('error', e => console.error('WS Error', e));
-provider.on('end', e => console.error('WS End', e));
+// const provider = new Web3.providers.WebsocketProvider(process.env.WEB_SOCKET_URL);
+// provider.on('error', e => console.error('WS Error', e));
+// provider.on('end', e => console.error('WS End', e));
+//
+// const web3 = new Web3(provider);
 
-const web3 = new Web3(provider);
+//Infura Websockets connection.
+const getProvider = () => {
+    const provider = new Web3.providers.WebsocketProvider(process.env.WEB_SOCKET_URL);
+
+    provider.on("connect", () => {
+        console.log("*** WebSocket Connected ***");
+    });
+    provider.on("error", () => {
+        console.log("*** WebSocket Error ***");
+        getProvider();
+    });
+    provider.on("end", () => {
+        console.log("*** WebSocket Ended ***");
+        getProvider();
+    });
+    provider.on("close", () => {
+        console.log("*** WebSocket Closed ***");
+        getProvider();
+    });
+    provider.on("timeout", () => {
+        console.log("*** WebSocket Timeout ***");
+        getProvider();
+    });
+    provider.on("exit", () => {
+        console.log("*** WebSocket Exit ***");
+        getProvider();
+    });
+    // provider.on("ready", (e) => {
+    //     //console.log('*** WebSocket Ready ***')
+    // })
+    return provider;
+}
+
+const web3 = new Web3(getProvider());
 
 const initSocketServer = (server) => {
     const io = new Server(server, {
