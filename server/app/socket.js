@@ -8,7 +8,12 @@ const {
     currentRound, roundPredictions, weiToETH, findUser, serializeMessage, serializeChatUser, gasPricePromise
 } = require('./functions');
 const prisma = new PrismaClient();
-const web3 = new Web3(new Web3.providers.WebsocketProvider(process.env.WEB_SOCKET_URL));
+
+const provider = new Web3.providers.WebsocketProvider(process.env.WEB_SOCKET_URL);
+provider.on('error', e => console.error('WS Error', e));
+provider.on('end', e => console.error('WS End', e));
+
+const web3 = new Web3(provider);
 
 const initSocketServer = (server) => {
     const io = new Server(server, {
