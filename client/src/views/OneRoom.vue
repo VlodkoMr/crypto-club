@@ -106,7 +106,7 @@
               <div class="mt-4 pt-2 pl-3">Current Price</div>
             </div>
             <div class="col-6 mt-2 pt-1 position-relative">
-              <span class="change-pct" v-if="room.price_pct">{{ room.price_pct }}%</span>
+              <span class="change-pct" :class="{green: room.price_pct > 0}" v-if="room.price_pct">{{ room.price_pct }}%</span>
               <b class="fz-36 text-nowrap price"
                  :class="{'pointer-event': $store.getters.canAddPrediction}"
                  @click="setCurrentPrice()">{{ room.price_usd }}</b>
@@ -319,11 +319,15 @@ h2 {
 
 .change-pct {
   font-size: 24px;
-  color: #FF8989;
+  color: #ff8989;
   position: absolute;
   top: -18px;
   left: 124px;
   font-weight: 500;
+
+  &.green {
+    color: rgba(86, 236, 0, .7);
+  }
 }
 
 .price {

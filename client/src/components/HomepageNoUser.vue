@@ -24,7 +24,7 @@
         <span class="price-block" v-if="oneRoom.price_usd">
           {{ oneRoom.price_usd }}
           <span class="price-now-text d-inline-block">PRICE NOW</span>
-          <span class="price-now red" v-if="oneRoom.price_pct">{{ oneRoom.price_pct }}%</span>
+          <span class="price-now" :class="{red: oneRoom.price_pct<=0}" v-if="oneRoom.price_pct">{{ oneRoom.price_pct }}%</span>
         </span>
       </div>
       <div class="text-center mt-3 ml-3">
@@ -143,6 +143,7 @@ h2 {
       position: absolute;
       top: -23px;
       right: 0;
+      color: rgba(86, 236, 0, .7);
 
       &.red {
         color: #FF8989;

@@ -88,7 +88,7 @@ export default {
   },
   async created() {
     // Connect metamask on init
-    await this.connectMetamask();
+    this.connectMetamask();
     await this.$store.dispatch('loadRound');
     await this.$store.dispatch('loadPreviousRoundResults');
     await this.$store.dispatch('loadUser');
