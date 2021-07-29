@@ -80,7 +80,6 @@ import WalletConnectPopup from '@/components/WalletConnectPopup'
 import BalanceErrorPopup from '@/components/BalanceErrorPopup'
 import TopMessagePopup from '@/components/TopMessagePopup';
 import {isMetamaskEnabled, getUserAddress} from './blockchain/metamask';
-import detectEthereumProvider from '@metamask/detect-provider';
 import web3 from 'web3';
 
 export default {
@@ -88,14 +87,6 @@ export default {
     return {}
   },
   async created() {
-    const provider = await detectEthereumProvider();
-    if (provider) {
-      console.log(provider);
-    } else {
-      alert('No metamask');
-    }
-
-
     // Connect metamask on init
     this.connectMetamask();
     await this.$store.dispatch('loadRound');
